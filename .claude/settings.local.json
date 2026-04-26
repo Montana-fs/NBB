@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pip3 --version)",
+      "Bash(pip3 install *)",
+      "Bash(python3 *)",
+      "Bash(open *)",
+      "WebFetch(domain:nordicbigbag.com)"
+    ]
+  }
+}
