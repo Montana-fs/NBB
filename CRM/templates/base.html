@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}NBB CRM{% endblock %}</title>
+<style>
+:root {
+  --primary: #2563eb; --primary-dark: #1d4ed8;
+  --success: #16a34a; --warning: #d97706; --danger: #dc2626;
+  --bg: #f1f5f9; --card: #fff; --border: #e2e8f0;
+  --text: #0f172a; --muted: #64748b;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-lg: 0 4px 16px rgba(0,0,0,0.08);
+  --r: 8px; --r-lg: 12px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 15px; }
+
+/* Nav */
+nav { background: #0f172a; height: 56px; display: flex; align-items: center; padding: 0 24px; gap: 28px; position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 0 rgba(255,255,255,0.06); }
+.nav-logo { font-weight: 800; font-size: 18px; color: #fff; text-decoration: none; letter-spacing: -0.5px; }
+.nav-logo span { color: #60a5fa; }
+nav a.nav-link { color: #94a3b8; text-decoration: none; font-size: 14px; font-weight: 500; padding: 4px 0; border-bottom: 2px solid transparent; transition: all 0.15s; white-space: nowrap; }
+nav a.nav-link:hover { color: #fff; }
+nav a.nav-link.aktiv { color: #fff; border-bottom-color: #60a5fa; }
+.nav-badge { background: #ef4444; color: #fff; font-size: 11px; font-weight: 700; padding: 1px 6px; border-radius: 10px; margin-left: 4px; vertical-align: middle; }
+.nav-spacer { flex: 1; }
+.nav-firma { color: #475569; font-size: 13px; }
+
+/* Layout */
+.side { max-width: 980px; margin: 0 auto; padding: 28px 16px 60px; }
+
+/* Cards */
+.kort { background: var(--card); border-radius: var(--r-lg); box-shadow: var(--shadow); overflow: hidden; margin-bottom: 16px; }
+.kort-header { padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.kort-header-titel { font-weight: 600; font-size: 15px; }
+.kort-body { padding: 20px; }
+
+/* Grid */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+@media (max-width: 640px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+/* Buttons */
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: var(--r); font-size: 14px; font-weight: 600; cursor: pointer; border: none; text-decoration: none; transition: all 0.15s; line-height: 1.2; }
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-primary:hover { background: var(--primary-dark); }
+.btn-success { background: var(--success); color: #fff; }
+.btn-success:hover { background: #15803d; }
+.btn-ghost { background: transparent; color: var(--muted); border: 1.5px solid var(--border); }
+.btn-ghost:hover { background: var(--bg); color: var(--text); border-color: #cbd5e1; }
+.btn-danger-ghost { background: transparent; color: var(--danger); border: 1.5px solid #fca5a5; font-size: 13px; padding: 5px 12px; }
+.btn-danger-ghost:hover { background: #fef2f2; }
+.btn-sm { padding: 5px 12px; font-size: 13px; }
+.btn-lg { padding: 12px 24px; font-size: 16px; }
+.btn-blok { width: 100%; justify-content: center; }
+
+/* Forms */
+.felt { margin-bottom: 14px; }
+.felt label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+.felt input[type=text], .felt input[type=email], .felt input[type=tel],
+.felt input[type=url], .felt input[type=date], .felt input[type=datetime-local],
+.felt textarea, .felt select {
+  width: 100%; padding: 9px 12px; border: 1.5px solid var(--border);
+  border-radius: var(--r); font-size: 15px; font-family: inherit;
+  background: #fff; color: var(--text); transition: border-color 0.15s;
+}
+.felt input:focus, .felt textarea:focus, .felt select:focus { outline: none; border-color: var(--primary); }
+.felt textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+.felt-checkbox { display: flex; align-items: center; gap: 8px; padding: 6px 0; }
+.felt-checkbox input { width: auto; }
+.felt-checkbox label { margin: 0; text-transform: none; font-size: 14px; color: var(--text); letter-spacing: 0; font-weight: 500; }
+
+/* Badges */
+.badge { display: inline-block; padding: 2px 9px; border-radius: 20px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+.badge-blue   { background: #eff6ff; color: #1d4ed8; }
+.badge-blaa   { background: #eff6ff; color: #0369a1; }
+.badge-lilla  { background: #f5f3ff; color: #7c3aed; }
+.badge-groen  { background: #f0fdf4; color: #15803d; }
+.badge-orange { background: #fff7ed; color: #c2410c; }
+.badge-roed   { background: #fef2f2; color: #b91c1c; }
+.badge-graa   { background: #f8fafc; color: #475569; border: 1px solid #e2e8f0; }
+
+/* Sektionsoverskrift */
+.sektion-titel { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px; }
+
+/* Tom tilstand */
+.tom-tilstand { text-align: center; padding: 32px 16px; color: var(--muted); font-size: 14px; }
+.tom-tilstand .ikon { font-size: 32px; margin-bottom: 8px; }
+
+/* Tilbage-link */
+.tilbage { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 14px; text-decoration: none; margin-bottom: 20px; }
+.tilbage:hover { color: var(--text); }
+
+/* Sideoverskrift */
+.side-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+.side-header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
+
+/* Separator */
+hr.sep { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="nav-logo">NBB <span>CRM</span></a>
+  <a href="/" class="nav-link {% if request.endpoint == 'dashboard' %}aktiv{% endif %}">Dashboard</a>
+  <a href="/kunder" class="nav-link {% if request.endpoint in ('kunder','kunde','ny_kunde') %}aktiv{% endif %}">Kunder</a>
+  <a href="/pipeline" class="nav-link {% if request.endpoint == 'pipeline' %}aktiv{% endif %}">Pipeline</a>
+  <a href="/opkaldsliste" class="nav-link {% if request.endpoint == 'opkaldsliste' %}aktiv{% endif %}">
+    Opkaldsliste{% if opkald_antal %}<span class="nav-badge">{{ opkald_antal }}</span>{% endif %}
+  </a>
+  <div class="nav-spacer"></div>
+  <a href="/backup" onclick="return confirm('Tag backup af databasen til Downloads-mappen?')" class="nav-link" style="font-size:13px;" title="Kopier data/crm.db til Downloads">💾 Backup</a>
+  <span class="nav-firma">NBB · Nordic Big Bag</span>
+</nav>
+<div class="side">
+  {% block indhold %}{% endblock %}
+</div>
+</body>
+</html>

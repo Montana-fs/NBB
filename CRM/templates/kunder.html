@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Kunder — NBB CRM{% endblock %}
+{% block indhold %}
+
+<style>
+.soeg-bar { display: flex; gap: 12px; margin-bottom: 24px; }
+.soeg-bar input { flex: 1; padding: 10px 16px; border: 1.5px solid var(--border); border-radius: var(--r); font-size: 15px; background: #fff; }
+.soeg-bar input:focus { outline: none; border-color: var(--primary); }
+
+.kunder-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+.kunde-kort { background: #fff; border-radius: var(--r-lg); box-shadow: var(--shadow); padding: 18px 20px; display: flex; flex-direction: column; gap: 10px; transition: box-shadow 0.15s; text-decoration: none; color: inherit; border: 1.5px solid transparent; }
+.kunde-kort:hover { box-shadow: var(--shadow-lg); border-color: #bfdbfe; }
+.kunde-kort.churn { border-color: #fca5a5; background: #fff5f5; }
+.kunde-kort-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.kunde-navn { font-weight: 700; font-size: 16px; line-height: 1.3; color: var(--text); }
+.opkald-dot { background: #ef4444; color: #fff; font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 10px; white-space: nowrap; flex-shrink: 0; }
+.tilbud-dot { background: #d97706; color: #fff; font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 10px; white-space: nowrap; flex-shrink: 0; }
+.kontakt-linje { font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+.sidst-aktiv { font-size: 12px; color: #94a3b8; }
+.churn-advarsel { font-size: 12px; font-weight: 600; color: #dc2626; }
+</style>
+
+<div class="side-header">
+  <h1>Kunder <span style="font-weight:400; color:var(--muted); font-size:16px;">({{ kunder|length }})</span></h1>
+  <a href="/kunde/ny" class="btn btn-primary">+ Ny kunde</a>
+</div>
+
+<form class="soeg-bar" method="GET" action="/kunder">
+  <input type="text" name="q" value="{{ soeg }}" placeholder="Søg på firmanavn eller kontaktperson…" autofocus>
+  <input type="hidden" name="sort" value="{{ sort }}">
+  <button class="btn btn-ghost" type="submit">Søg</button>
+  {% if soeg %}<a href="/kunder?sort={{ sort }}" class="btn btn-ghost">Ryd</a>{% endif %}
+</form>
+
+<div style="display:flex; gap:8px; margin-bottom:20px; align-items:center;">
+  <span style="font-size:12px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px;">Sortér:</span>
+  <a href="/kunder?q={{ soeg }}&sort=navn" class="btn btn-sm {% if sort == 'navn' %}btn-primary{% else %}btn-ghost{% endif %}">A–Z</a>
+  <a href="/kunder?q={{ soeg }}&sort=sidst" class="btn btn-sm {% if sort == 'sidst' %}btn-primary{% else %}btn-ghost{% endif %}">Sidst kontaktet</a>
+  <a href="/kunder?q={{ soeg }}&sort=branche" class="btn btn-sm {% if sort == 'branche' %}btn-primary{% else %}btn-ghost{% endif %}">Branche</a>
+</div>
+
+{% if kunder %}
+<div class="kunder-grid">
+  {% for k in kunder %}
+  {% set er_churn = k.dage_siden_kontakt and k.dage_siden_kontakt > 60 %}
+  <a href="/kunde/{{ k.id }}" class="kunde-kort {% if er_churn %}churn{% endif %}">
+    <div class="kunde-kort-top">
+      <div class="kunde-navn">{{ k.firmanavn }}</div>
+      <div style="display:flex; gap:4px; flex-wrap:wrap;">
+        {% if k.ventende_opkald %}<span class="opkald-dot">{{ k.ventende_opkald }} opkald</span>{% endif %}
+        {% if k.aabne_tilbud %}<span class="tilbud-dot">{{ k.aabne_tilbud }} tilbud</span>{% endif %}
+      </div>
+    </div>
+    {% if k.branche %}<span class="badge badge-graa">{{ k.branche }}</span>{% endif %}
+    {% if k.primaer_kontakt %}
+    <div class="kontakt-linje">👤 {{ k.primaer_kontakt }}{% if k.primaer_telefon %} · 📞 {{ k.primaer_telefon }}{% endif %}</div>
+    {% endif %}
+    {% if er_churn %}
+    <div class="churn-advarsel">⚠️ Ikke kontaktet i {{ k.dage_siden_kontakt }} dage</div>
+    {% elif k.sidst_aktivitet %}
+    <div class="sidst-aktiv">
+      Sidst kontakt: {{ k.sidst_aktivitet|dato }}
+      {% set info = aktivitet_info.get(k.sidst_type, ('','','')) %}
+      {{ info[0] }}
+    </div>
+    {% else %}
+    <div class="sidst-aktiv">Ingen aktivitet endnu</div>
+    {% endif %}
+  </a>
+  {% endfor %}
+</div>
+{% else %}
+<div class="kort">
+  <div class="tom-tilstand">
+    <div class="ikon">🏢</div>
+    {% if soeg %}
+      Ingen kunder matcher "<strong>{{ soeg }}</strong>"
+    {% else %}
+      Ingen kunder endnu — <a href="/kunde/ny" style="color:var(--primary);">tilføj din første</a>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}

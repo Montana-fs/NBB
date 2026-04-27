@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}Tilbuds-pipeline — NBB CRM{% endblock %}
+{% block indhold %}
+
+<style>
+.pipeline-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; align-items: start; }
+@media (max-width: 860px) { .pipeline-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 520px) { .pipeline-grid { grid-template-columns: 1fr; } }
+
+.pipeline-kolonne { background: #f8fafc; border-radius: var(--r-lg); padding: 14px; min-height: 200px; }
+.pipeline-header { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
+.pipeline-antal { background: rgba(0,0,0,0.07); border-radius: 20px; padding: 1px 8px; font-size: 12px; font-weight: 700; }
+
+.tilbud-kort { background: var(--card); border-radius: var(--r); padding: 12px 14px; margin-bottom: 8px; box-shadow: var(--shadow); border-left: 3px solid var(--border); }
+.tilbud-kort.udsendt    { border-left-color: #d97706; }
+.tilbud-kort.forhandling{ border-left-color: #7c3aed; }
+.tilbud-kort.vundet     { border-left-color: #16a34a; }
+.tilbud-kort.tabt       { border-left-color: #dc2626; opacity: 0.65; }
+
+.tilbud-titel { font-weight: 600; font-size: 14px; margin-bottom: 2px; }
+.tilbud-firma { font-size: 13px; color: var(--primary); text-decoration: none; }
+.tilbud-firma:hover { text-decoration: underline; }
+.tilbud-meta { font-size: 12px; color: var(--muted); margin-top: 6px; display: flex; gap: 10px; flex-wrap: wrap; }
+.tilbud-belob { font-size: 13px; font-weight: 700; color: var(--text); }
+
+.status-knapper { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+.status-knap { font-size: 11px; padding: 2px 8px; border-radius: 20px; border: 1.5px solid var(--border); background: none; cursor: pointer; font-weight: 600; color: var(--muted); transition: all 0.15s; }
+.status-knap:hover { background: var(--bg); color: var(--text); }
+</style>
+
+<div class="side-header">
+  <div>
+    <h1>Tilbuds-pipeline</h1>
+    <div style="color:var(--muted); font-size:14px; margin-top:4px;">Overblik over alle tilbud og deres status</div>
+  </div>
+</div>
+
+{% set total = (grupper.udsendt|length) + (grupper.forhandling|length) + (grupper.vundet|length) + (grupper.tabt|length) %}
+{% if total == 0 %}
+<div class="kort">
+  <div class="kort-body">
+    <div class="tom-tilstand" style="padding:48px 16px;">
+      <div class="ikon" style="font-size:40px;">📋</div>
+      Ingen tilbud registreret endnu.<br>
+      <a href="/kunder" style="color:var(--primary);">Gå til en kunde</a> for at oprette det første tilbud.
+    </div>
+  </div>
+</div>
+{% else %}
+<div class="pipeline-grid">
+
+  {% for status_key, label, color in [
+      ('udsendt',    'Udsendt',    '#d97706'),
+      ('forhandling','Forhandling','#7c3aed'),
+      ('vundet',     'Vundet',     '#16a34a'),
+      ('tabt',       'Tabt',       '#dc2626')
+  ] %}
+  <div class="pipeline-kolonne">
+    <div class="pipeline-header" style="color:{{ color }};">
+      {{ label }}
+      <span class="pipeline-antal">{{ grupper[status_key]|length }}</span>
+    </div>
+    {% if totaler[status_key] %}
+    <div style="font-size:12px; font-weight:700; color:{{ color }}; margin-bottom:10px; opacity:0.8;">{{ totaler[status_key]|kr }}</div>
+    {% endif %}
+
+    {% if grupper[status_key] %}
+      {% for t in grupper[status_key] %}
+      <div class="tilbud-kort {{ t.status }}">
+        <div class="tilbud-titel">{{ t.titel }}</div>
+        <a href="/kunde/{{ t.kunde_id }}" class="tilbud-firma">{{ t.firmanavn }}</a>
+        {% if t.belob %}
+        <div class="tilbud-belob" style="margin-top:4px;">{{ t.belob|kr }}</div>
+        {% endif %}
+        <div class="tilbud-meta">
+          <span>📅 {{ t.dato_udsendt|dato_kort }}</span>
+          {% if t.kontakt_navn %}<span>👤 {{ t.kontakt_navn }}</span>{% endif %}
+        </div>
+        {% if t.noter %}
+        <div style="font-size:12px; color:var(--muted); margin-top:6px; font-style:italic;">{{ t.noter }}</div>
+        {% endif %}
+
+        <div class="status-knapper">
+          {% for s, lbl, _ in [('udsendt','Udsendt',''),('forhandling','Forhandling',''),('vundet','Vundet',''),('tabt','Tabt','')] %}
+            {% if s != t.status %}
+            <form method="POST" action="/tilbud/{{ t.id }}/status" style="display:inline;">
+              <input type="hidden" name="status" value="{{ s }}">
+              <button class="status-knap" type="submit">→ {{ lbl }}</button>
+            </form>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div style="font-size:13px; color:var(--muted); text-align:center; padding:24px 8px;">Ingen tilbud</div>
+    {% endif %}
+  </div>
+  {% endfor %}
+
+</div>
+{% endif %}
+
+{% endblock %}

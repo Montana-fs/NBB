@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — NBB CRM{% endblock %}
+{% block indhold %}
+
+<style>
+.stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+@media (max-width: 720px) { .stat-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 420px) { .stat-grid { grid-template-columns: 1fr; } }
+
+.stat-kort {
+  background: var(--card); border-radius: var(--r-lg); box-shadow: var(--shadow);
+  padding: 20px 24px; display: flex; flex-direction: column; gap: 4px;
+  border-left: 4px solid var(--border);
+  text-decoration: none; color: inherit; transition: box-shadow 0.15s;
+}
+.stat-kort:hover { box-shadow: var(--shadow-lg); }
+.stat-kort.blaa { border-left-color: #2563eb; }
+.stat-kort.groen { border-left-color: #16a34a; }
+.stat-kort.orange { border-left-color: #d97706; }
+.stat-kort.roed { border-left-color: #dc2626; }
+.stat-label { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.stat-tal { font-size: 36px; font-weight: 800; letter-spacing: -1px; line-height: 1.1; }
+.stat-tal.blaa { color: #2563eb; }
+.stat-tal.groen { color: #16a34a; }
+.stat-tal.orange { color: #d97706; }
+.stat-tal.roed { color: #dc2626; }
+.stat-sub { font-size: 13px; color: var(--muted); }
+
+.churn-tabel { width: 100%; border-collapse: collapse; }
+.churn-tabel th { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; padding: 0 0 10px; text-align: left; }
+.churn-tabel td { padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 14px; vertical-align: middle; }
+.churn-tabel tr:last-child td { border-bottom: none; }
+.churn-dage { font-size: 13px; font-weight: 700; color: var(--danger); white-space: nowrap; }
+.churn-dage.gul { color: #d97706; }
+</style>
+
+<div class="side-header">
+  <div>
+    <h1>God dag 👋</h1>
+    <div style="color:var(--muted); font-size:14px; margin-top:4px;">Her er et overblik over NBB i dag</div>
+  </div>
+  <a href="/kunde/ny" class="btn btn-primary btn-sm">+ Ny kunde</a>
+</div>
+
+<!-- Nøgletal -->
+<div class="stat-grid">
+  <a href="/opkaldsliste" class="stat-kort blaa">
+    <div class="stat-label">Opkald der venter</div>
+    <div class="stat-tal blaa">{{ stats.opkald_idag }}</div>
+    <div class="stat-sub">skal ringes til idag eller er overskredet</div>
+  </a>
+  <a href="/pipeline" class="stat-kort orange">
+    <div class="stat-label">Åbne tilbud</div>
+    <div class="stat-tal orange">{{ stats.aabne_tilbud }}</div>
+    <div class="stat-sub">{% if stats.pipeline_sum %}{{ stats.pipeline_sum|kr }} i pipeline{% else %}udsendt eller under forhandling{% endif %}</div>
+  </a>
+  <a href="/pipeline" class="stat-kort groen">
+    <div class="stat-label">Vundet denne måned</div>
+    <div class="stat-tal groen">{{ stats.vundet_maaned }}</div>
+    <div class="stat-sub">tilbud markeret som vundet</div>
+  </a>
+  <a href="/kunder" class="stat-kort {% if stats.ikke_kontaktet > 0 %}roed{% else %}groen{% endif %}">
+    <div class="stat-label">Glemt i 60+ dage</div>
+    <div class="stat-tal {% if stats.ikke_kontaktet > 0 %}roed{% else %}groen{% endif %}">{{ stats.ikke_kontaktet }}</div>
+    <div class="stat-sub">kunder ikke kontaktet i lang tid</div>
+  </a>
+</div>
+
+<div style="display:grid; grid-template-columns: 1fr 340px; gap:16px; align-items:start;">
+  <!-- Kunder der trænger til kontakt -->
+  <div class="kort">
+    <div class="kort-header">
+      <span class="kort-header-titel">⚠️ Kunder der trænger til kontakt</span>
+      <span style="font-size:13px; color:var(--muted);">ikke kontaktet i 60+ dage</span>
+    </div>
+    <div class="kort-body">
+      {% if ikke_kontaktet %}
+      <table class="churn-tabel">
+        <thead>
+          <tr>
+            <th>Firma</th>
+            <th>Kontakt</th>
+            <th>Telefon</th>
+            <th style="text-align:right;">Dage siden</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for k in ikke_kontaktet %}
+          <tr>
+            <td>
+              <a href="/kunde/{{ k.id }}" style="font-weight:600; color:var(--text); text-decoration:none;">{{ k.firmanavn }}</a>
+              {% if k.branche %}<div style="font-size:12px; color:var(--muted);">{{ k.branche }}</div>{% endif %}
+            </td>
+            <td style="color:var(--muted);">{{ k.primaer_kontakt or '—' }}</td>
+            <td>
+              {% if k.primaer_telefon %}
+              <a href="tel:{{ k.primaer_telefon }}" style="color:var(--primary); font-size:13px;">{{ k.primaer_telefon }}</a>
+              {% else %}—{% endif %}
+            </td>
+            <td style="text-align:right;">
+              <span class="churn-dage {% if k.dage_siden and k.dage_siden < 90 %}gul{% endif %}">
+                {% if k.dage_siden %}{{ k.dage_siden }} dage{% else %}aldrig{% endif %}
+              </span>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="tom-tilstand" style="padding:24px 0;">
+        <div class="ikon">✅</div>
+        Alle kunder er kontaktet inden for 60 dage
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Genveje -->
+  <div>
+    <div class="kort">
+      <div class="kort-header"><span class="kort-header-titel">Genveje</span></div>
+      <div class="kort-body" style="display:flex; flex-direction:column; gap:8px;">
+        <a href="/kunde/ny" class="btn btn-ghost btn-blok" style="justify-content:flex-start;">👤 Opret ny kunde</a>
+        <a href="/kunder" class="btn btn-ghost btn-blok" style="justify-content:flex-start;">📋 Se alle kunder ({{ stats.kunder_total }})</a>
+        <a href="/pipeline" class="btn btn-ghost btn-blok" style="justify-content:flex-start;">📊 Tilbuds-pipeline</a>
+        <a href="/opkaldsliste" class="btn btn-ghost btn-blok" style="justify-content:flex-start;">📞 Opkaldsliste</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

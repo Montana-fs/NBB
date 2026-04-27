@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Ny kunde — NBB CRM{% endblock %}
+{% block indhold %}
+
+<a href="/kunder" class="tilbage">← Tilbage til kunder</a>
+
+<div class="side-header">
+  <h1>Ny kunde</h1>
+</div>
+
+<div class="kort">
+  <div class="kort-header"><span class="kort-header-titel">Firmaoplysninger</span></div>
+  <div class="kort-body">
+    <form method="POST" action="/kunde/ny">
+      <div class="felt">
+        <label>Firmanavn *</label>
+        <input type="text" name="firmanavn" required autofocus placeholder="Eks. Acme A/S">
+      </div>
+      <div class="grid-2">
+        <div class="felt">
+          <label>Branche</label>
+          <input type="text" name="branche" placeholder="Eks. Industri & Produktion">
+        </div>
+        <div class="felt">
+          <label>Hjemmeside</label>
+          <input type="url" name="hjemmeside" placeholder="https://…">
+        </div>
+      </div>
+      <div class="felt">
+        <label>Adresse</label>
+        <input type="text" name="adresse" placeholder="Eks. Industriparken 12, 2600 Glostrup">
+      </div>
+      <div class="felt">
+        <label>Nuværende leverandør / konkurrent</label>
+        <input type="text" name="konkurrent" placeholder="Eks. Jumbo Bag A/S">
+      </div>
+      <div class="felt">
+        <label>Noter</label>
+        <textarea name="noter" placeholder="Generelle noter om kunden…"></textarea>
+      </div>
+      <hr class="sep">
+      <div style="display:flex; gap:12px; justify-content:flex-end;">
+        <a href="/kunder" class="btn btn-ghost">Annuller</a>
+        <button type="submit" class="btn btn-primary btn-lg">Opret kunde →</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}

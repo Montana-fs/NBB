@@ -85,7 +85,7 @@ def generate(article, language, usp_index, output_path):
     draw.text((52, 106), "Nordic Big Bag · Industriel emballage", font=sub_font, fill=C_MUTED)
 
     # Kategori-badge med brand cyan-blå
-    category = "CIRKULÆR ØKONOMI" if language == "da" else "CIRCULAR ECONOMY"
+    category = {"da": "CIRKULÆR ØKONOMI", "en": "CIRCULAR ECONOMY", "de": "KREISLAUFWIRTSCHAFT", "sv": "CIRKULÄR EKONOMI"}.get(language, "CIRCULAR ECONOMY")
     badge_font = _font(14, bold=True)
     badge_bbox = draw.textbbox((0, 0), category, font=badge_font)
     badge_w = badge_bbox[2] - badge_bbox[0] + 32
@@ -138,9 +138,12 @@ def generate(article, language, usp_index, output_path):
     draw.rectangle([0, strip_y, W, strip_y + 2], fill=C_BLUE)
 
     # Hashtags i bund (brand cyan-blå)
-    tags = "#bigbags  #cirkulærøkonomi  #grønomstilling  #NordicBigBag"
-    if language == "en":
-        tags = "#bigbags  #circulareconomy  #greentransition  #NordicBigBag"
+    tags = {
+        "da": "#bigbags  #cirkulærøkonomi  #grønomstilling  #NordicBigBag",
+        "en": "#bigbags  #circulareconomy  #greentransition  #NordicBigBag",
+        "de": "#bigbags  #kreislaufwirtschaft  #grünerWandel  #NordicBigBag",
+        "sv": "#bigbags  #cirkulärekonomi  #grönomställning  #NordicBigBag",
+    }.get(language, "#bigbags  #circulareconomy  #NordicBigBag")
     tag_font = _font(17)
     draw.text((52, strip_y + 22), tags, font=tag_font, fill=C_BLUE)
 

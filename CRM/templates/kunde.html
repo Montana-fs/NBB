@@ -1,0 +1,484 @@
+{% extends "base.html" %}
+{% block title %}{{ kunde.firmanavn }} — NBB CRM{% endblock %}
+{% block indhold %}
+
+<style>
+.kunde-grid { display: grid; grid-template-columns: 340px 1fr; gap: 16px; align-items: start; }
+@media (max-width: 720px) { .kunde-grid { grid-template-columns: 1fr; } }
+
+/* Kontaktkort */
+.kontakt-kort { background: #f8fafc; border: 1.5px solid var(--border); border-radius: var(--r); padding: 14px 16px; margin-bottom: 10px; position: relative; }
+.kontakt-kort.primaer { border-color: #bfdbfe; background: #eff6ff; }
+.kontakt-navn { font-weight: 700; font-size: 15px; }
+.kontakt-titel { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+.kontakt-info-linje { font-size: 13px; color: var(--text); margin-top: 4px; display: flex; align-items: center; gap: 6px; }
+.kontakt-info-linje a { color: var(--primary); text-decoration: none; }
+.kontakt-info-linje a:hover { text-decoration: underline; }
+.primaer-badge { font-size: 11px; font-weight: 600; color: #1d4ed8; background: #dbeafe; padding: 1px 7px; border-radius: 10px; margin-left: 6px; }
+.slet-knap { position: absolute; top: 10px; right: 12px; background: none; border: none; cursor: pointer; color: #cbd5e1; font-size: 16px; line-height: 1; }
+.slet-knap:hover { color: var(--danger); }
+
+/* Aktivitetslog */
+.aktivitet { display: flex; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--border); }
+.aktivitet:last-child { border-bottom: none; }
+.aktivitet-ikon { font-size: 20px; flex-shrink: 0; width: 32px; text-align: center; }
+.aktivitet-dato { font-size: 12px; color: var(--muted); margin-bottom: 3px; }
+.aktivitet-tekst { font-size: 14px; line-height: 1.5; color: var(--text); }
+
+/* Opkaldskort */
+.opkald-kort { background: #fffbeb; border: 1.5px solid #fde68a; border-radius: var(--r); padding: 12px 14px; margin-bottom: 8px; display: flex; align-items: flex-start; gap: 12px; }
+.opkald-detaljer { flex: 1; }
+.opkald-dato { font-size: 13px; font-weight: 600; color: var(--text); }
+.opkald-note { font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+/* Tilbud */
+.tilbud-linje { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.tilbud-linje:last-child { border-bottom: none; }
+.tilbud-titel-tekst { flex: 1; font-size: 14px; font-weight: 600; }
+.tilbud-belob-tekst { font-size: 13px; color: var(--muted); }
+
+/* Produkter */
+.produkt-linje { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.produkt-linje:last-child { border-bottom: none; }
+.produkt-type { font-weight: 700; font-size: 14px; flex: 1; }
+.produkt-spec { font-size: 13px; color: var(--muted); }
+.produkt-pris { font-size: 13px; font-weight: 600; color: var(--text); white-space: nowrap; }
+
+/* Skjult redigeringsform */
+.rediger-panel { display: none; margin-top: 12px; }
+.rediger-panel.vis { display: block; }
+</style>
+
+<a href="/kunder" class="tilbage">← Tilbage til kunder</a>
+
+<div class="side-header">
+  <div>
+    <h1>{{ kunde.firmanavn }}</h1>
+    {% if kunde.branche %}<span class="badge badge-graa" style="margin-top:6px;">{{ kunde.branche }}</span>{% endif %}
+  </div>
+  <div style="display:flex; gap:8px;">
+    <button onclick="toggleRediger()" class="btn btn-ghost btn-sm">✏️ Rediger</button>
+    <form action="/kunde/{{ kunde.id }}/slet" method="POST" onsubmit="return confirm('Slet {{ kunde.firmanavn }}? Dette kan ikke fortrydes.')">
+      <button class="btn btn-danger-ghost btn-sm" type="submit">Slet</button>
+    </form>
+  </div>
+</div>
+
+<!-- Redigeringsformular (skjult som standard) -->
+<div id="rediger-panel" class="kort rediger-panel" style="margin-bottom:16px;">
+  <div class="kort-header"><span class="kort-header-titel">Rediger firma</span></div>
+  <div class="kort-body">
+    <form method="POST" action="/kunde/{{ kunde.id }}/rediger">
+      <div class="felt">
+        <label>Firmanavn</label>
+        <input type="text" name="firmanavn" value="{{ kunde.firmanavn }}" required>
+      </div>
+      <div class="grid-2">
+        <div class="felt">
+          <label>Branche</label>
+          <input type="text" name="branche" value="{{ kunde.branche or '' }}">
+        </div>
+        <div class="felt">
+          <label>Hjemmeside</label>
+          <input type="url" name="hjemmeside" value="{{ kunde.hjemmeside or '' }}" placeholder="https://…">
+        </div>
+      </div>
+      <div class="felt">
+        <label>Adresse</label>
+        <input type="text" name="adresse" value="{{ kunde.adresse or '' }}">
+      </div>
+      <div class="felt">
+        <label>Nuværende leverandør / konkurrent</label>
+        <input type="text" name="konkurrent" value="{{ kunde.konkurrent or '' }}" placeholder="Eks. Jumbo Bag A/S">
+      </div>
+      <div class="felt">
+        <label>Noter</label>
+        <textarea name="noter">{{ kunde.noter or '' }}</textarea>
+      </div>
+      <div style="display:flex; gap:8px; justify-content:flex-end;">
+        <button type="button" onclick="toggleRediger()" class="btn btn-ghost btn-sm">Annuller</button>
+        <button type="submit" class="btn btn-primary btn-sm">Gem ændringer</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="kunde-grid">
+
+  <!-- Venstre kolonne -->
+  <div>
+
+    <!-- Firmainfo -->
+    <div class="kort">
+      <div class="kort-header"><span class="kort-header-titel">Firmainfo</span></div>
+      <div class="kort-body" style="font-size:14px; display:flex; flex-direction:column; gap:8px;">
+        {% if kunde.adresse %}
+        <div style="color:var(--muted);">📍 {{ kunde.adresse }}</div>
+        {% endif %}
+        {% if kunde.hjemmeside %}
+        <div>🌐 <a href="{{ kunde.hjemmeside }}" target="_blank" style="color:var(--primary);">{{ kunde.hjemmeside }}</a></div>
+        {% endif %}
+        {% if kunde.konkurrent %}
+        <div style="color:var(--muted);">🏭 Bruger i dag: <strong style="color:var(--text);">{{ kunde.konkurrent }}</strong></div>
+        {% endif %}
+        {% if kunde.noter %}
+        <hr class="sep" style="margin:4px 0;">
+        <div style="white-space:pre-line; color:var(--text);">{{ kunde.noter }}</div>
+        {% endif %}
+        {% if not kunde.adresse and not kunde.hjemmeside and not kunde.konkurrent and not kunde.noter %}
+        <span style="color:var(--muted);">Ingen yderligere info</span>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Kontaktpersoner -->
+    <div class="kort" id="kontakter">
+      <div class="kort-header">
+        <span class="kort-header-titel">Kontaktpersoner</span>
+      </div>
+      <div class="kort-body">
+        {% if kontakter %}
+          {% for k in kontakter %}
+          <div class="kontakt-kort {% if k.er_primaer %}primaer{% endif %}">
+            <div style="display:flex; align-items:center;">
+              <span class="kontakt-navn">{{ k.navn }}</span>
+              {% if k.er_primaer %}<span class="primaer-badge">Primær</span>{% endif %}
+            </div>
+            {% if k.titel %}<div class="kontakt-titel">{{ k.titel }}</div>{% endif %}
+            {% if k.telefon %}<div class="kontakt-info-linje">📞 <a href="tel:{{ k.telefon }}">{{ k.telefon }}</a></div>{% endif %}
+            {% if k.email %}<div class="kontakt-info-linje">📧 <a href="mailto:{{ k.email }}">{{ k.email }}</a></div>{% endif %}
+            {% if k.noter %}<div class="kontakt-info-linje" style="color:var(--muted); margin-top:6px;">{{ k.noter }}</div>{% endif %}
+            <div style="position:absolute; top:10px; right:12px; display:flex; gap:6px;">
+              <button type="button" onclick="toggleKontaktRediger({{ k.id }})" title="Rediger" style="background:none; border:none; cursor:pointer; color:#94a3b8; font-size:14px;">✏️</button>
+              <form action="/kontakt/{{ k.id }}/slet" method="POST" onsubmit="return confirm('Fjern {{ k.navn }}?')" style="display:inline;">
+                <button class="slet-knap" type="submit" title="Fjern kontakt">×</button>
+              </form>
+            </div>
+
+            <div id="kontakt-rediger-{{ k.id }}" style="display:none; margin-top:14px; padding-top:12px; border-top:1px solid var(--border);">
+              <form method="POST" action="/kontakt/{{ k.id }}/rediger">
+                <div class="felt"><label>Navn</label><input type="text" name="navn" value="{{ k.navn }}" required></div>
+                <div class="grid-2">
+                  <div class="felt"><label>Titel</label><input type="text" name="titel" value="{{ k.titel or '' }}"></div>
+                  <div class="felt"><label>Telefon</label><input type="tel" name="telefon" value="{{ k.telefon or '' }}"></div>
+                </div>
+                <div class="felt"><label>E-mail</label><input type="email" name="email" value="{{ k.email or '' }}"></div>
+                <div class="felt-checkbox felt">
+                  <input type="checkbox" name="er_primaer" id="red-primaer-{{ k.id }}" value="1" {% if k.er_primaer %}checked{% endif %}>
+                  <label for="red-primaer-{{ k.id }}">Primær kontakt</label>
+                </div>
+                <div style="display:flex; gap:8px;">
+                  <button type="submit" class="btn btn-primary btn-sm">Gem</button>
+                  <button type="button" onclick="toggleKontaktRediger({{ k.id }})" class="btn btn-ghost btn-sm">Annuller</button>
+                </div>
+              </form>
+            </div>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="tom-tilstand" style="padding:16px 0;">
+            <div class="ikon" style="font-size:24px;">👤</div>
+            Ingen kontaktpersoner endnu
+          </div>
+        {% endif %}
+
+        <hr class="sep">
+        <div class="sektion-titel">Tilføj kontaktperson</div>
+        <form method="POST" action="/kunde/{{ kunde.id }}/kontakt">
+          <div class="felt">
+            <label>Navn *</label>
+            <input type="text" name="navn" required placeholder="Fulde navn">
+          </div>
+          <div class="grid-2">
+            <div class="felt">
+              <label>Titel</label>
+              <input type="text" name="titel" placeholder="Eks. Indkøbschef">
+            </div>
+            <div class="felt">
+              <label>Telefon</label>
+              <input type="tel" name="telefon" placeholder="+45 …">
+            </div>
+          </div>
+          <div class="felt">
+            <label>E-mail</label>
+            <input type="email" name="email" placeholder="navn@firma.dk">
+          </div>
+          <div class="felt-checkbox felt">
+            <input type="checkbox" name="er_primaer" id="primaer-{{ kunde.id }}" value="1">
+            <label for="primaer-{{ kunde.id }}">Primær kontakt</label>
+          </div>
+          <button type="submit" class="btn btn-ghost btn-sm btn-blok">+ Tilføj kontakt</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Tilføj til opkaldsliste -->
+    <div class="kort">
+      <div class="kort-header"><span class="kort-header-titel">📞 Tilføj til opkaldsliste</span></div>
+      <div class="kort-body">
+        {% if opkald %}
+          <div class="sektion-titel" style="margin-bottom:8px;">Planlagte opkald</div>
+          {% for o in opkald %}
+          <div class="opkald-kort">
+            <div class="opkald-detaljer">
+              <div class="opkald-dato">{{ o.planlagt_dato|dato_kort if o.planlagt_dato else 'Snarest' }}</div>
+              {% if o.note %}<div class="opkald-note">{{ o.note }}</div>{% endif %}
+            </div>
+            {% set pinfo = prioritet_info.get(o.prioritet, ('Normal','badge-graa')) %}
+            <span class="badge {{ pinfo[1] }}" style="font-size:11px;">{{ pinfo[0] }}</span>
+            <form method="POST" action="/opkaldsliste/{{ o.id }}/udfort" style="flex-shrink:0;">
+              <input type="hidden" name="tilbage" value="/kunde/{{ kunde.id }}">
+              <button type="submit" class="btn btn-success btn-sm" title="Markér som udført" style="padding:4px 10px; font-size:12px;">✓</button>
+            </form>
+          </div>
+          {% endfor %}
+          <hr class="sep">
+        {% endif %}
+        <form method="POST" action="/kunde/{{ kunde.id }}/opkald">
+          <div class="grid-2">
+            <div class="felt">
+              <label>Dato</label>
+              <input type="date" name="planlagt_dato" value="{{ today[:10] }}">
+            </div>
+            <div class="felt">
+              <label>Prioritet</label>
+              <select name="prioritet">
+                <option value="1">🔴 Høj</option>
+                <option value="2" selected>⚪ Normal</option>
+                <option value="3">🟢 Lav</option>
+              </select>
+            </div>
+          </div>
+          <div class="felt">
+            <label>Hvad skal du huske?</label>
+            <input type="text" name="note" placeholder="Eks. Følg op på tilbud fra 22. april">
+          </div>
+          <button type="submit" class="btn btn-primary btn-sm btn-blok">Sæt på liste</button>
+        </form>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Højre kolonne -->
+  <div>
+
+    <!-- Tilbud -->
+    <div class="kort" id="tilbud">
+      <div class="kort-header">
+        <span class="kort-header-titel">📋 Tilbud</span>
+        <a href="/pipeline" style="font-size:13px; color:var(--primary); text-decoration:none;">Se pipeline →</a>
+      </div>
+      <div class="kort-body">
+        {% if tilbud %}
+          {% for t in tilbud %}
+          <div class="tilbud-linje" style="flex-direction:column; align-items:stretch; gap:6px;">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <div style="flex:1;">
+                <div class="tilbud-titel-tekst">{{ t.titel }}</div>
+                <div style="display:flex; gap:8px; margin-top:4px; align-items:center; flex-wrap:wrap;">
+                  {% set ts = tilbud_status.get(t.status, ('?','badge-graa')) %}
+                  <span class="badge {{ ts[1] }}" style="font-size:11px;">{{ ts[0] }}</span>
+                  <span class="tilbud-belob-tekst">{{ t.dato_udsendt|dato_kort }}</span>
+                  {% if t.belob %}<span style="font-size:13px; font-weight:600;">{{ t.belob|kr }}</span>{% endif %}
+                </div>
+              </div>
+              <button type="button" onclick="toggleTilbudRediger({{ t.id }})" style="background:none; border:none; cursor:pointer; color:#94a3b8; font-size:13px; white-space:nowrap;">✏️ Rediger</button>
+              <form method="POST" action="/tilbud/{{ t.id }}/slet" onsubmit="return confirm('Slet tilbud?')">
+                <button type="submit" style="background:none; border:none; cursor:pointer; color:#cbd5e1; font-size:16px;" title="Slet">×</button>
+              </form>
+            </div>
+            <div id="tilbud-rediger-{{ t.id }}" style="display:none; background:#f8fafc; border-radius:var(--r); padding:12px; margin-top:4px;">
+              <form method="POST" action="/tilbud/{{ t.id }}/rediger">
+                <div class="grid-2">
+                  <div class="felt"><label>Titel</label><input type="text" name="titel" value="{{ t.titel }}" required></div>
+                  <div class="felt"><label>Beløb (kr.)</label><input type="number" name="belob" value="{{ t.belob or '' }}" placeholder="45000" min="0"></div>
+                </div>
+                <div class="grid-2">
+                  <div class="felt">
+                    <label>Status</label>
+                    <select name="status">
+                      {% for s, sl in [('udsendt','Udsendt'),('forhandling','Forhandling'),('vundet','Vundet'),('tabt','Tabt')] %}
+                      <option value="{{ s }}" {% if t.status == s %}selected{% endif %}>{{ sl }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div class="felt"><label>Dato udsendt</label><input type="date" name="dato_udsendt" value="{{ t.dato_udsendt }}"></div>
+                </div>
+                <div class="felt"><label>Note</label><input type="text" name="noter" value="{{ t.noter or '' }}"></div>
+                <div style="display:flex; gap:8px;">
+                  <button type="submit" class="btn btn-primary btn-sm">Gem</button>
+                  <button type="button" onclick="toggleTilbudRediger({{ t.id }})" class="btn btn-ghost btn-sm">Annuller</button>
+                </div>
+              </form>
+            </div>
+          </div>
+          {% endfor %}
+          <hr class="sep">
+        {% endif %}
+
+        <div class="sektion-titel">Nyt tilbud</div>
+        <form method="POST" action="/kunde/{{ kunde.id }}/tilbud">
+          <div class="felt">
+            <label>Tilbudstitel *</label>
+            <input type="text" name="titel" required placeholder="Eks. 500 stk. Type A sække">
+          </div>
+          <div class="grid-2">
+            <div class="felt">
+              <label>Beløb (kr.)</label>
+              <input type="number" name="belob" placeholder="45000" min="0">
+            </div>
+            <div class="felt">
+              <label>Status</label>
+              <select name="status">
+                <option value="udsendt">Udsendt</option>
+                <option value="forhandling">Forhandling</option>
+                <option value="vundet">Vundet</option>
+                <option value="tabt">Tabt</option>
+              </select>
+            </div>
+          </div>
+          <div class="felt">
+            <label>Dato udsendt</label>
+            <input type="date" name="dato_udsendt" value="{{ today[:10] }}">
+          </div>
+          <div class="felt">
+            <label>Noter</label>
+            <input type="text" name="noter" placeholder="Valgfri note">
+          </div>
+          <button type="submit" class="btn btn-ghost btn-sm btn-blok">+ Opret tilbud</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Produkthukommelse -->
+    <div class="kort" id="produkter">
+      <div class="kort-header">
+        <span class="kort-header-titel">📦 Produkthukommelse</span>
+      </div>
+      <div class="kort-body">
+        {% if produkter %}
+          {% for p in produkter %}
+          <div class="produkt-linje">
+            <div style="flex:1;">
+              <div class="produkt-type">{{ p.saektype }}</div>
+              {% if p.specifikation %}<div class="produkt-spec">{{ p.specifikation }}</div>{% endif %}
+              {% if p.noter %}<div class="produkt-spec" style="font-style:italic;">{{ p.noter }}</div>{% endif %}
+            </div>
+            {% if p.sidst_pris %}<div class="produkt-pris">{{ p.sidst_pris }}</div>{% endif %}
+            <form method="POST" action="/produkt/{{ p.id }}/slet" onsubmit="return confirm('Slet produkt?')">
+              <button type="submit" style="background:none; border:none; cursor:pointer; color:#cbd5e1; font-size:16px;" title="Slet">×</button>
+            </form>
+          </div>
+          {% endfor %}
+          <hr class="sep">
+        {% endif %}
+
+        <div class="sektion-titel">Tilføj produkt / sækketype</div>
+        <form method="POST" action="/kunde/{{ kunde.id }}/produkt">
+          <div class="grid-2">
+            <div class="felt">
+              <label>Sækketype *</label>
+              <input type="text" name="saektype" required placeholder="Eks. Type A — 1.000 kg">
+            </div>
+            <div class="felt">
+              <label>Sidst pris</label>
+              <input type="text" name="sidst_pris" placeholder="Eks. 89 kr./stk.">
+            </div>
+          </div>
+          <div class="felt">
+            <label>Specifikation</label>
+            <input type="text" name="specifikation" placeholder="Eks. 90x90x120 cm, PE-liner, 4 løfteøjer">
+          </div>
+          <div class="felt">
+            <label>Note</label>
+            <input type="text" name="noter" placeholder="Eks. Leveret april 2026 — kunden tilfreds">
+          </div>
+          <button type="submit" class="btn btn-ghost btn-sm btn-blok">+ Tilføj produkt</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Aktivitetslog -->
+    <div class="kort" id="aktiviteter">
+      <div class="kort-header">
+        <span class="kort-header-titel">Aktivitetslog</span>
+        <span style="font-size:13px; color:var(--muted);">{{ aktiviteter|length }} poster</span>
+      </div>
+      <div class="kort-body">
+
+        <div class="sektion-titel">Log ny aktivitet</div>
+        <form method="POST" action="/kunde/{{ kunde.id }}/aktivitet" style="margin-bottom:20px;">
+          <div class="grid-2">
+            <div class="felt">
+              <label>Type</label>
+              <select name="type">
+                <option value="opkald">📞 Opkald</option>
+                <option value="mail">📧 Mail</option>
+                <option value="møde">🤝 Møde</option>
+                <option value="tilbud">📋 Tilbud</option>
+                <option value="ordre">📦 Ordre</option>
+                <option value="note">📝 Note</option>
+              </select>
+            </div>
+            <div class="felt">
+              <label>Dato & tid</label>
+              <input type="datetime-local" name="dato" value="{{ today }}">
+            </div>
+          </div>
+          <div class="felt">
+            <label>Beskrivelse *</label>
+            <textarea name="beskrivelse" required placeholder="Hvad skete der? Hvad blev aftalt?" style="min-height:64px;"></textarea>
+          </div>
+          <button type="submit" class="btn btn-success btn-sm">✓ Log aktivitet</button>
+        </form>
+
+        <hr class="sep">
+
+        {% if aktiviteter %}
+          {% for a in aktiviteter %}
+          {% set info = aktivitet_info.get(a.type, ('📝','Note','badge-graa')) %}
+          <div class="aktivitet">
+            <div class="aktivitet-ikon">{{ info[0] }}</div>
+            <div style="flex:1;">
+              <div class="aktivitet-dato">
+                <span class="badge {{ info[2] }}">{{ info[1] }}</span>
+                &nbsp;{{ a.dato|dato }}
+              </div>
+              <div class="aktivitet-tekst">{{ a.beskrivelse }}</div>
+            </div>
+            <form method="POST" action="/aktivitet/{{ a.id }}/slet" onsubmit="return confirm('Slet denne aktivitet?')" style="flex-shrink:0;">
+              <button type="submit" style="background:none; border:none; cursor:pointer; color:#e2e8f0; font-size:15px; padding:2px 4px;" title="Slet" onmouseover="this.style.color='#dc2626'" onmouseout="this.style.color='#e2e8f0'">×</button>
+            </form>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="tom-tilstand" style="padding:16px 0;">
+            <div class="ikon" style="font-size:24px;">📋</div>
+            Ingen aktiviteter logget endnu
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+function toggleRediger() {
+  var p = document.getElementById('rediger-panel');
+  p.classList.toggle('vis');
+  if (p.classList.contains('vis')) p.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+function toggleKontaktRediger(id) {
+  var p = document.getElementById('kontakt-rediger-' + id);
+  p.style.display = p.style.display === 'none' ? 'block' : 'none';
+}
+function toggleTilbudRediger(id) {
+  var p = document.getElementById('tilbud-rediger-' + id);
+  p.style.display = p.style.display === 'none' ? 'block' : 'none';
+}
+</script>
+
+{% endblock %}

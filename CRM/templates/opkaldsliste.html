@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}Opkaldsliste — NBB CRM{% endblock %}
+{% block indhold %}
+
+<style>
+.opkald-kort { background: #fff; border-radius: var(--r-lg); box-shadow: var(--shadow); padding: 18px 20px; margin-bottom: 12px; display: flex; gap: 16px; align-items: flex-start; border-left: 4px solid transparent; }
+.opkald-kort.prio-1 { border-left-color: #ef4444; }
+.opkald-kort.prio-2 { border-left-color: #94a3b8; }
+.opkald-kort.prio-3 { border-left-color: #86efac; }
+.opkald-kort.forfalden { background: #fff7ed; border-left-color: #f97316; }
+.opkald-info { flex: 1; }
+.opkald-firma { font-weight: 700; font-size: 16px; margin-bottom: 2px; }
+.opkald-kontakt { font-size: 14px; color: var(--muted); margin-bottom: 6px; display: flex; flex-wrap: wrap; gap: 12px; }
+.opkald-kontakt a { color: var(--primary); text-decoration: none; }
+.opkald-kontakt a:hover { text-decoration: underline; }
+.opkald-note { font-size: 14px; color: var(--text); background: #f8fafc; border-radius: 6px; padding: 8px 12px; margin-top: 6px; border-left: 3px solid #e2e8f0; }
+.opkald-dato { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+.opkald-dato.idag { color: var(--success); }
+.opkald-dato.forfalden { color: var(--danger); }
+.opkald-actions { display: flex; flex-direction: column; gap: 8px; align-items: flex-end; min-width: 130px; }
+
+.sektion-label { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin: 24px 0 12px; display: flex; align-items: center; gap: 10px; }
+.sektion-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+</style>
+
+<div class="side-header">
+  <h1>Opkaldsliste <span style="font-weight:400; color:var(--muted); font-size:16px;">({{ opkald|length }})</span></h1>
+  <a href="/" class="btn btn-ghost btn-sm">← Alle kunder</a>
+</div>
+
+{% if opkald %}
+  {% set idag_liste = opkald|selectattr('planlagt_dato', 'le', today)|list %}
+  {% set kommende_liste = opkald|rejectattr('planlagt_dato', 'le', today)|list %}
+
+  {% if idag_liste %}
+  <div class="sektion-label">I dag & forfaldne ({{ idag_liste|length }})</div>
+  {% for o in idag_liste %}
+  {% set pinfo = prioritet_info.get(o.prioritet, ('Normal','badge-graa')) %}
+  {% set er_forfalden = o.planlagt_dato < today %}
+  <div class="opkald-kort prio-{{ o.prioritet }} {% if er_forfalden %}forfalden{% endif %}">
+    <div class="opkald-info">
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:4px;">
+        <div class="opkald-firma">{{ o.firmanavn }}</div>
+        <span class="badge {{ pinfo[1] }}">{{ pinfo[0] }}</span>
+        {% if er_forfalden %}<span class="badge badge-roed">Forfalden</span>{% endif %}
+      </div>
+      <div class="opkald-kontakt">
+        {% if o.kontakt_navn %}
+        <span>👤 {{ o.kontakt_navn }}</span>
+        {% endif %}
+        {% if o.kontakt_telefon %}
+        <a href="tel:{{ o.kontakt_telefon }}">📞 {{ o.kontakt_telefon }}</a>
+        {% endif %}
+        {% if o.kontakt_email %}
+        <a href="mailto:{{ o.kontakt_email }}">📧 {{ o.kontakt_email }}</a>
+        {% endif %}
+      </div>
+      {% if o.note %}<div class="opkald-note">{{ o.note }}</div>{% endif %}
+    </div>
+    <div class="opkald-actions">
+      <div class="opkald-dato {% if er_forfalden %}forfalden{% else %}idag{% endif %}">
+        {{ o.planlagt_dato|dato_kort if o.planlagt_dato }}
+      </div>
+      <form action="/opkaldsliste/{{ o.id }}/udfort" method="POST">
+        <button class="btn btn-success btn-sm">✓ Udført</button>
+      </form>
+      <a href="/kunde/{{ o.kunde_id }}" class="btn btn-ghost btn-sm">Åbn kort</a>
+    </div>
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  {% if kommende_liste %}
+  <div class="sektion-label">Kommende ({{ kommende_liste|length }})</div>
+  {% for o in kommende_liste %}
+  {% set pinfo = prioritet_info.get(o.prioritet, ('Normal','badge-graa')) %}
+  <div class="opkald-kort prio-{{ o.prioritet }}">
+    <div class="opkald-info">
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:4px;">
+        <div class="opkald-firma">{{ o.firmanavn }}</div>
+        <span class="badge {{ pinfo[1] }}">{{ pinfo[0] }}</span>
+      </div>
+      <div class="opkald-kontakt">
+        {% if o.kontakt_navn %}<span>👤 {{ o.kontakt_navn }}</span>{% endif %}
+        {% if o.kontakt_telefon %}<a href="tel:{{ o.kontakt_telefon }}">📞 {{ o.kontakt_telefon }}</a>{% endif %}
+        {% if o.kontakt_email %}<a href="mailto:{{ o.kontakt_email }}">📧 {{ o.kontakt_email }}</a>{% endif %}
+      </div>
+      {% if o.note %}<div class="opkald-note">{{ o.note }}</div>{% endif %}
+    </div>
+    <div class="opkald-actions">
+      <div class="opkald-dato">{{ o.planlagt_dato|dato if o.planlagt_dato }}</div>
+      <form action="/opkaldsliste/{{ o.id }}/udfort" method="POST">
+        <button class="btn btn-ghost btn-sm">✓ Udført</button>
+      </form>
+      <a href="/kunde/{{ o.kunde_id }}" class="btn btn-ghost btn-sm">Åbn kort</a>
+    </div>
+  </div>
+  {% endfor %}
+  {% endif %}
+
+{% else %}
+<div class="kort">
+  <div class="tom-tilstand">
+    <div class="ikon">✅</div>
+    Ingen opkald på listen — gå til et kundekort for at tilføje et.
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}
