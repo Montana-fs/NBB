@@ -146,6 +146,8 @@ def selection_page():
   .news-score {{ font-size: 13px; color: #f59e0b; letter-spacing: 1px; }}
   .btn-news {{ padding: 8px 16px; background: #f3f2ef; color: #1a1a1a; border-radius: 6px; font-size: 13px; font-weight: 600; text-decoration: none; transition: all 0.15s; border: 1px solid #e0e0e0; white-space: nowrap; }}
   .btn-news:hover {{ background: #0a66c2; color: white; border-color: #0a66c2; }}
+  .step-label {{ font-size: 13px; font-weight: 700; color: #0a66c2; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 10px; padding-left: 4px; }}
+  .step-label-dim {{ color: #aaa; }}
   .no-news {{ color: #999; font-size: 14px; text-align: center; padding: 24px 0; }}
   .usp-option {{ display: flex; align-items: flex-start; gap: 12px; padding: 12px 16px; border-radius: 8px; cursor: pointer; border: 2px solid transparent; margin-bottom: 8px; transition: all 0.15s; background: #f8f9fa; }}
   .usp-option:hover {{ background: #eef2ff; border-color: #c7d7fd; }}
@@ -169,6 +171,8 @@ def selection_page():
       var articleIdx = a.getAttribute('data-article-idx');
       a.href = '/select/article/' + articleIdx + '?usp_idx=' + idx;
     }});
+    var step2 = document.getElementById('step2');
+    if (step2) setTimeout(function() {{ step2.scrollIntoView({{ behavior: 'smooth', block: 'start' }}); }}, 150);
   }}
 </script>
 </head>
@@ -179,13 +183,15 @@ def selection_page():
     <p>Vælg det budskab du vil fremhæve, og find en nyhed</p>
   </div>
 
+  <div class="step-label">Trin 1 — Vælg ugens budskab</div>
   <div class="card">
-    <div class="card-header">📢 &nbsp;Vælg ugens budskab</div>
+    <div class="card-header">📢 &nbsp;Hvilket budskab vil du fremhæve denne uge?</div>
     <div class="card-body">
       {usp_cards}
     </div>
   </div>
 
+  <div id="step2" class="step-label step-label-dim">Trin 2 — Vælg en nyhed eller skriv eget emne</div>
   <div class="card">
     <div class="card-header">✏️ &nbsp;Eget emne eller begivenhed</div>
     <div class="card-body">
@@ -327,9 +333,9 @@ def preview():
   .news-source .label {{ font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #888; margin-bottom: 4px; }}
   .news-source .title {{ font-size: 14px; font-weight: 600; color: #1a1a1a; }}
   .news-source .meta {{ font-size: 12px; color: #888; margin-top: 4px; }}
-  .post-body {{ width: 100%; padding: 20px; font-size: 15px; line-height: 1.6; color: #1a1a1a; border: none; border-top: 1px solid #f0f0f0; resize: vertical; min-height: 240px; font-family: inherit; outline: none; background: white; display: block; margin-top: 16px; }}
-  .post-body:focus {{ background: #fafeff; }}
-  .edit-hint {{ padding: 6px 20px 14px; font-size: 12px; color: #bbb; }}
+  .post-body {{ width: calc(100% - 40px); margin: 16px 20px 8px; padding: 16px; font-size: 15px; line-height: 1.6; color: #1a1a1a; border: 1.5px solid #d0d0d0; border-radius: 8px; resize: vertical; min-height: 240px; font-family: inherit; outline: none; background: #fafafa; display: block; }}
+  .post-body:focus {{ background: white; border-color: #0a66c2; }}
+  .edit-hint {{ padding: 0 20px 16px; font-size: 12px; color: #999; }}
   .post-image {{ margin: 0 20px 16px; }}
   .post-image img {{ width: 100%; border-radius: 8px; display: block; }}
   .usp-badge {{ margin: 0 20px 16px; padding: 10px 14px; background: #f0fdf4; border-radius: 8px; border-left: 3px solid #16a34a; font-size: 13px; color: #166534; }}

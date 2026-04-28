@@ -22,10 +22,18 @@
   .card-header { padding: 16px 20px; border-bottom: 1px solid #f0f0f0; font-weight: 600; color: #1a1a1a; font-size: 15px; }
   .card-body { padding: 20px; }
 
-  /* ── Language toggle ── */
-  .lang-toggle { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 14px; }
-  .lang-btn { padding: 8px 18px; border-radius: 20px; font-size: 14px; font-weight: 600; cursor: pointer; border: 2px solid #d0d0d0; background: white; color: #666; transition: all 0.15s; }
-  .lang-btn.active { background: #1a1a1a; color: white; border-color: #1a1a1a; }
+  /* ── Step labels ── */
+  .step-label { font-size: 13px; font-weight: 700; color: #0a66c2; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 10px; padding-left: 4px; }
+  .step-label-muted { color: #aaa; transition: color 0.3s; }
+  .step-label-muted.active { color: #0a66c2; }
+
+  /* ── USP selector ── */
+  .usp-option { display: flex; align-items: flex-start; gap: 12px; padding: 12px 16px; border-radius: 8px; cursor: pointer; border: 2px solid transparent; margin-bottom: 8px; transition: all 0.15s; background: #f8f9fa; }
+  .usp-option:hover { background: #eef2ff; border-color: #c7d7fd; }
+  .usp-option.selected { background: #f0fdf4; border-color: #16a34a; }
+  .usp-radio { width: 20px; height: 20px; border-radius: 50%; border: 2px solid #d0d0d0; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #16a34a; font-weight: 700; flex-shrink: 0; margin-top: 2px; }
+  .usp-option.selected .usp-radio { border-color: #16a34a; background: #dcfce7; }
+  .usp-text { font-size: 14px; color: #1a1a1a; line-height: 1.5; }
 
   /* ── Manual input ── */
   .manual-input { width: 100%; padding: 12px 16px; border: 1.5px solid #d0d0d0; border-radius: 8px; font-size: 15px; font-family: inherit; resize: vertical; min-height: 64px; transition: border-color 0.15s; }
@@ -52,10 +60,6 @@
   .btn-news { padding: 8px 16px; background: #f3f2ef; color: #1a1a1a; border-radius: 6px; font-size: 13px; font-weight: 600; text-decoration: none; transition: all 0.15s; border: 1px solid #e0e0e0; white-space: nowrap; cursor: pointer; }
   .btn-news:hover { background: #0a66c2; color: white; border-color: #0a66c2; }
 
-  /* ── USP note ── */
-  .usp-note { padding: 12px 16px; background: #f0fdf4; border-radius: 8px; border-left: 3px solid #16a34a; font-size: 13px; color: #166534; margin-top: 8px; }
-  .usp-note .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #888; margin-bottom: 4px; }
-
   /* ── Loading ── */
   #screen-loading { display: none; min-height: 80vh; align-items: center; justify-content: center; }
   #screen-loading.active { display: flex; }
@@ -71,26 +75,15 @@
   .avatar { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #0a66c2, #004182); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 18px; flex-shrink: 0; }
   .profile-name { font-weight: 600; color: #1a1a1a; font-size: 15px; }
   .profile-sub { color: #666; font-size: 13px; margin-top: 2px; }
-  .post-body { padding: 20px; font-size: 15px; line-height: 1.6; color: #1a1a1a; white-space: pre-line; }
-  .news-ref { margin: 0 20px 20px; padding: 12px 16px; background: #f8f9fa; border-radius: 8px; border-left: 3px solid #0a66c2; }
+  .news-ref { margin: 16px 20px 0; padding: 12px 16px; background: #f8f9fa; border-radius: 8px; border-left: 3px solid #0a66c2; }
   .news-ref .ref-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #888; margin-bottom: 4px; }
   .news-ref .ref-title { font-size: 14px; font-weight: 600; color: #1a1a1a; }
   .news-ref .ref-meta { font-size: 12px; color: #888; margin-top: 4px; }
-  .usp-badge { margin: 0 20px 20px; padding: 10px 14px; background: #f0fdf4; border-radius: 8px; border-left: 3px solid #16a34a; font-size: 13px; color: #166534; }
-  .usp-badge .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #888; margin-bottom: 4px; }
-  .info-row { display: flex; gap: 8px; padding: 12px 20px; border-top: 1px solid #f0f0f0; font-size: 12px; color: #888; flex-wrap: wrap; }
-  .info-pill { background: #f3f2ef; padding: 3px 10px; border-radius: 20px; }
-  .actions { display: flex; gap: 12px; padding: 20px; border-top: 1px solid #f0f0f0; align-items: center; }
-  .btn-approve { flex: 1; padding: 14px; background: #0a66c2; color: white; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; border: none; text-align: center; transition: background 0.15s; }
-  .btn-approve:hover { background: #004182; }
-  .btn-back { padding: 14px 20px; color: #666; font-size: 14px; cursor: pointer; border-radius: 8px; border: none; background: none; transition: background 0.15s; white-space: nowrap; }
-  .btn-back:hover { background: #ebebeb; color: #1a1a1a; }
-
-  /* ── Branded graphic ── */
-  .nbb-graphic { margin: 0 20px 20px; border-radius: 8px; overflow: hidden; background: #0D1E3A; aspect-ratio: 1200/627; position: relative; font-family: Arial, Helvetica, sans-serif; }
+  .post-body { width: 100%; padding: 16px; font-size: 15px; line-height: 1.6; color: #1a1a1a; border: 1.5px solid #d0d0d0; border-radius: 8px; resize: vertical; min-height: 240px; font-family: inherit; outline: none; background: #fafafa; display: block; margin: 16px 20px 8px; width: calc(100% - 40px); }
+  .post-body:focus { background: white; border-color: #0a66c2; }
+  .edit-hint { padding: 0 20px 16px; font-size: 12px; color: #999; }
+  .nbb-graphic { margin: 0 20px 16px; border-radius: 8px; overflow: hidden; background: #0D1E3A; aspect-ratio: 1200/627; position: relative; font-family: Arial, Helvetica, sans-serif; }
   .nbb-graphic .grad-strip { height: 8px; background: linear-gradient(to right, #00A8CC, #4ABF6C, #95C11F); }
-  .nbb-graphic .circles { position: absolute; top: 0; right: 0; width: 50%; height: 100%; overflow: hidden; }
-  .nbb-graphic .circle { position: absolute; border-radius: 50%; border-style: solid; }
   .nbb-graphic .inner { padding: 4% 4.5%; }
   .nbb-graphic .nbb-name { font-size: clamp(20px, 5vw, 48px); font-weight: 900; color: #fff; letter-spacing: -0.5px; line-height: 1; }
   .nbb-graphic .nbb-sub { font-size: clamp(8px, 1.4vw, 15px); color: #A8C8D8; margin-top: 2%; }
@@ -101,6 +94,13 @@
   .nbb-graphic .bottom-strip { position: absolute; bottom: 0; left: 0; right: 0; height: 12%; background: #081629; border-top: 2px solid #00A8CC; display: flex; align-items: center; justify-content: space-between; padding: 0 4.5%; }
   .nbb-graphic .hashtags { font-size: clamp(6px, 1.1vw, 13px); color: #00A8CC; }
   .nbb-graphic .nbb-dot-dk { font-size: clamp(7px, 1.2vw, 15px); font-weight: 700; color: #95C11F; }
+  .usp-badge { margin: 0 20px 16px; padding: 10px 14px; background: #f0fdf4; border-radius: 8px; border-left: 3px solid #16a34a; font-size: 13px; color: #166534; }
+  .usp-badge .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #888; margin-bottom: 4px; }
+  .actions { display: flex; gap: 12px; padding: 20px; border-top: 1px solid #f0f0f0; align-items: center; }
+  .btn-approve { flex: 1; padding: 14px; background: #0a66c2; color: white; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; border: none; text-align: center; transition: background 0.15s; }
+  .btn-approve:hover { background: #004182; }
+  .btn-back { padding: 14px 20px; color: #666; font-size: 14px; cursor: pointer; border-radius: 8px; border: none; background: none; transition: background 0.15s; white-space: nowrap; }
+  .btn-back:hover { background: #ebebeb; color: #1a1a1a; }
 
   /* ── Success ── */
   #screen-success { display: none; min-height: 80vh; align-items: center; justify-content: center; }
@@ -126,20 +126,22 @@
 <div id="screen-selection" class="screen active">
   <div class="header">
     <h1>NBB — Ugens LinkedIn-opslag</h1>
-    <p>Vælg en nyhed, eller skriv dit eget emne nedenfor</p>
-    <div class="lang-toggle">
-      <button id="btn-da" class="lang-btn active" onclick="setLang('da')">🇩🇰 Dansk</button>
-      <button id="btn-en" class="lang-btn" onclick="setLang('en')">🇬🇧 English</button>
-      <button id="btn-de" class="lang-btn" onclick="setLang('de')">🇩🇪 Deutsch</button>
-      <button id="btn-sv" class="lang-btn" onclick="setLang('sv')">🇸🇪 Svenska</button>
-    </div>
+    <p>Vælg det budskab du vil fremhæve, og find en nyhed</p>
   </div>
+
+  <div class="step-label">Trin 1 — Vælg ugens budskab</div>
+  <div class="card">
+    <div class="card-header">📢 &nbsp;Hvilket budskab vil du fremhæve denne uge?</div>
+    <div class="card-body" id="usp-cards"></div>
+  </div>
+
+  <div id="step2" class="step-label step-label-muted">Trin 2 — Vælg en nyhed eller skriv eget emne</div>
 
   <div class="card">
     <div class="card-header">✏️ &nbsp;Eget emne eller begivenhed</div>
     <div class="card-body">
       <textarea class="manual-input" id="manual-text" placeholder="Fx: 'NBB deltager på Packtech-messen den 15. maj' — eller indsæt et link til en specifik nyhed"></textarea>
-      <div class="manual-hint">Systemet skriver opslaget ud fra dit emne med denne uges budskab som omdrejningspunkt.</div>
+      <div class="manual-hint">Systemet skriver opslaget ud fra dit emne med det valgte budskab som omdrejningspunkt.</div>
       <button class="btn-manual" onclick="selectManual()">Generer opslag →</button>
     </div>
   </div>
@@ -195,11 +197,6 @@
       <button class="btn-news" onclick="selectArticle(3)">Brug denne →</button>
     </div>
   </div>
-
-  <div class="usp-note" id="usp-display">
-    <div class="label">Denne uges budskab</div>
-    <span id="usp-text">Kvalitet og holdbarhed — NBBs bigbags er bygget til at holde, selv under de mest krævende industrielle forhold.</span>
-  </div>
 </div>
 
 
@@ -222,10 +219,7 @@
 <div id="screen-preview" class="screen">
   <div class="header">
     <h1>NBB — Godkend opslaget</h1>
-    <p>Gennemse udkastet og godkend, eller gå tilbage og vælg en anden</p>
-    <div class="lang-toggle">
-      <div id="preview-lang-badge" class="lang-btn active" style="cursor:default; pointer-events:none;">🇩🇰 Dansk</div>
-    </div>
+    <p>Ret eventuelt i teksten, og godkend når det er klar</p>
   </div>
 
   <div class="card">
@@ -243,33 +237,28 @@
       <div class="ref-meta" id="ref-meta"></div>
     </div>
 
-    <div class="post-body" id="post-body"></div>
+    <textarea class="post-body" id="post-body"></textarea>
+    <div class="edit-hint">Du kan redigere teksten direkte ovenfor.</div>
 
-    <!-- Branded graphic -->
-    <div class="nbb-graphic" id="nbb-graphic">
+    <div class="nbb-graphic">
       <div class="grad-strip"></div>
       <div class="inner">
         <div class="nbb-name">NBB</div>
         <div class="nbb-sub">Nordic Big Bag · Industriel emballage</div>
-        <div class="cat-badge" id="graphic-cat">CIRKULÆR ØKONOMI</div>
+        <div class="cat-badge">CIRKULÆR ØKONOMI</div>
         <div class="sep-line"></div>
         <div class="headline" id="graphic-headline"></div>
         <div class="src-info" id="graphic-src"></div>
       </div>
       <div class="bottom-strip">
-        <div class="hashtags" id="graphic-tags">#bigbags &nbsp; #cirkulærøkonomi &nbsp; #grønomstilling &nbsp; #NordicBigBag</div>
+        <div class="hashtags">#bigbags &nbsp; #cirkulærøkonomi &nbsp; #grønomstilling &nbsp; #NordicBigBag</div>
         <div class="nbb-dot-dk">nbb.dk</div>
       </div>
     </div>
 
     <div class="usp-badge">
-      <div class="label">Denne uges budskab</div>
+      <div class="label">Ugens budskab</div>
       <span id="preview-usp"></span>
-    </div>
-
-    <div class="info-row">
-      <span class="info-pill">LinkedIn · NBB virksomhedsside</span>
-      <span class="info-pill" id="preview-lang-pill">🇩🇰 Dansk</span>
     </div>
 
     <div class="actions">
@@ -296,14 +285,17 @@
 <script>
 /* ─── Data ─────────────────────────────────────────────────────────── */
 
-var currentLang = 'da';
+var USPS = [
+  'Kvalitet og holdbarhed — NBBs bigbags er bygget til at holde, selv under de mest krævende industrielle forhold.',
+  'Genanvendt materiale — NBBs bigbags kan produceres med genanvendte råmaterialer og reducerer CO₂-aftrykket fra din produktion.',
+  'Cirkulær model — NBB arbejder mod et lukket kredsløb, hvor brugte bigbags indsamles, genanvendes og sættes i produktion igen.',
+  'Specialtilpasning — NBBs bigbags tilpasses præcist til dine krav: størrelse, materiale, belastningsevne og design.',
+  'Dansk virksomhed — NBB er en lokal samarbejdspartner med kort beslutningsvej og direkte, personlig service.',
+  'Konkurrencedygtig pris — Grøn emballage behøver ikke koste mere. NBBs løsninger er priskonkurrencedygtige med konventionel emballage.',
+  'Ekspertrådgivning — NBB rådgiver om den rette bigbag-løsning til netop din produktion, dine materialer og din logistik.'
+];
 
-var USP = {
-  da: 'Kvalitet og holdbarhed — NBBs bigbags er bygget til at holde, selv under de mest krævende industrielle forhold.',
-  en: "Quality and durability — NBB's bigbags are built to last, even in the most demanding industrial environments.",
-  de: 'Qualität und Langlebigkeit — NBBs Bigbags sind gebaut, um selbst unter den anspruchsvollsten industriellen Bedingungen zu halten.',
-  sv: 'Kvalitet och hållbarhet — NBBs bigbags är byggda för att hålla, även under de mest krävande industriella förhållandena.'
-};
+var selectedUspIdx = 0;
 
 var ARTICLES = [
   { title: "EU's nye emballageforordning sætter strengere krav til genanvendelighed fra 2026", source: "Packaging Europe", date: "25. apr 2026" },
@@ -312,9 +304,8 @@ var ARTICLES = [
   { title: "Dansk industri øger efterspørgslen på bæredygtig emballage med 34 procent i 2025", source: "Altinget", date: "22. apr 2026" }
 ];
 
-var POSTS = {
-  da: [
-    `EU's nye emballageforordning sætter en ny standard for hele industrien — og det er en udvikling, vi hos NBB har forberedt os på i årevis.
+var POSTS = [
+  `EU's nye emballageforordning sætter en ny standard for hele industrien — og det er en udvikling, vi hos NBB har forberedt os på i årevis.
 
 Fra 2026 skal alle virksomheder dokumentere, at deres emballage opfylder strenge krav til genanvendelighed. Det er ikke bare et lovgivningskrav. Det er et wake-up call til alle, der endnu ikke har taget stilling til, hvad deres emballage egentlig er lavet af — og hvor det ender.
 
@@ -323,16 +314,18 @@ Hos NBB har vi altid arbejdet med kvalitet og holdbarhed som fundamentet for alt
 Er din virksomhed klar til de nye krav? Vi rådgiver gerne.
 
 #bigbags #cirkulærøkonomi #grønomstilling #NordicBigBag #EUemballage`,
-    `En ny rapport bekræfter det, vi hos NBB har sagt i årevis: bigbags er den mest ressourceeffektive løsning til transport og opbevaring af bulkvarer.
+
+  `En ny rapport bekræfter det, vi hos NBB har sagt i årevis: bigbags er den mest ressourceeffektive løsning til transport og opbevaring af bulkvarer.
 
 Lavere CO₂-aftryk. Høj udnyttelsesgrad. Mulighed for genanvendelse. Det er ikke tilfældigt — det er resultatet af gennemtænkt design og valg af materialer.
 
 Hos NBB arbejder vi med kvalitet og holdbarhed som fundament. Vores bigbags er bygget til at holde, selv under de mest krævende industrielle forhold. Og når de har gjort deres arbejde, sikrer vi, at de ikke bare ender som affald.
 
-Vil du vide mere om, hvad den rette bigbag-løsning kan gøre for din virksomhed — både på bundlinjen og CO₂-regnskabet?
+Vil du vide mere om, hvad den rette bigbag-løsning kan gøre for din virksomhed?
 
 #bigbags #cirkulærøkonomi #grønomstilling #NordicBigBag #bæredygtigindustri`,
-    `Plastaffald fra industrien falder for tredje år i træk. Det er en god nyhed — og et tegn på, at cirkulær økonomi ikke bare er et buzzword, men en retning industrien faktisk bevæger sig i.
+
+  `Plastaffald fra industrien falder for tredje år i træk. Det er en god nyhed — og et tegn på, at cirkulær økonomi ikke bare er et buzzword, men en retning industrien faktisk bevæger sig i.
 
 Vi mærker det hos NBB. Flere og flere virksomheder spørger ikke længere bare til pris og levering. De spørger til materialer, genanvendelighed og ansvar.
 
@@ -341,7 +334,8 @@ Det er præcis den samtale, vi gerne vil have. Hos NBB er kvalitet og holdbarhed
 Er du klar til at tage den samtale?
 
 #bigbags #cirkulærøkonomi #grønomstilling #NordicBigBag #plastaffald`,
-    `Dansk industri øger efterspørgslen på bæredygtig emballage med 34% i 2025. Det er en stigning, vi hos NBB mærker direkte — og det glæder os.
+
+  `Dansk industri øger efterspørgslen på bæredygtig emballage med 34% i 2025. Det er en stigning, vi hos NBB mærker direkte — og det glæder os.
 
 Fordi det viser, at bæredygtighed ikke længere er et valg, der kræver et argument. Det er et valg, markedet efterspørger.
 
@@ -350,149 +344,39 @@ Hos NBB har vi altid arbejdet med kvalitet og holdbarhed som fundamentet for alt
 Hvad kan vi gøre for dig?
 
 #bigbags #cirkulærøkonomi #grønomstilling #NordicBigBag #bæredygtigindustri`
-  ],
-  en: [
-    `The EU's new packaging regulation is setting a new standard for the entire industry — and at NBB, we have been preparing for this for years.
+];
 
-From 2026, all companies must document that their packaging meets strict recyclability requirements. This isn't just a regulatory requirement. It's a wake-up call for anyone who hasn't yet considered what their packaging is actually made of — and where it ends up.
-
-At NBB, quality and durability have always been the foundation of everything we do. Our bigbags are built to last, even in the most demanding industrial environments — and they are designed with recyclability in mind from day one.
-
-Is your business ready for the new requirements? We are happy to advise.
-
-#bigbags #circulareconomy #greentransition #NordicBigBag #EUpackaging`,
-    `A new report confirms what we at NBB have been saying for years: bigbags are the most resource-efficient solution for transporting and storing bulk goods.
-
-Lower carbon footprint. High utilisation rate. Recyclability. This isn't accidental — it's the result of thoughtful design and material choices.
-
-At NBB, quality and durability form the foundation of our work. Our bigbags are built to last, even in the most demanding industrial environments. And when they have done their job, we make sure they don't simply become waste.
-
-Want to know more about what the right bigbag solution can do for your business — both for the bottom line and your carbon footprint?
-
-#bigbags #circulareconomy #greentransition #NordicBigBag #sustainableindustry`,
-    `Industrial plastic waste is falling for the third consecutive year. That's good news — and a sign that the circular economy isn't just a buzzword, but a direction industry is actually moving in.
-
-We feel it at NBB. More and more companies are no longer just asking about price and delivery. They're asking about materials, recyclability, and responsibility.
-
-That's exactly the conversation we want to have. At NBB, quality and durability aren't just a sales argument — it's how we design and deliver our bigbags. Built to last. Designed to be used again.
-
-Are you ready to have that conversation?
-
-#bigbags #circulareconomy #greentransition #NordicBigBag #plasticwaste`,
-    `Danish industry is increasing its demand for sustainable packaging by 34% in 2025. This is a growth we feel directly at NBB — and it makes us proud.
-
-Because it shows that sustainability is no longer a choice that requires an argument. It's a choice the market is asking for.
-
-At NBB, quality and durability have always been the foundation of everything we do. Our bigbags are built to last, even in the most demanding industrial environments — and they are ready for the green transition your company is heading into.
-
-What can we do for you?
-
-#bigbags #circulareconomy #greentransition #NordicBigBag #sustainableindustry`
-  ],
-  de: [
-    `Die neue EU-Verpackungsverordnung setzt einen neuen Standard für die gesamte Industrie — und bei NBB bereiten wir uns seit Jahren darauf vor.
-
-Ab 2026 müssen alle Unternehmen nachweisen, dass ihre Verpackungen strenge Anforderungen an die Recyclingfähigkeit erfüllen. Das ist nicht nur eine gesetzliche Anforderung. Es ist ein Weckruf für alle, die noch nicht überlegt haben, woraus ihre Verpackung eigentlich besteht — und wo sie endet.
-
-Bei NBB waren Qualität und Langlebigkeit schon immer das Fundament unserer Arbeit. Unsere Bigbags sind gebaut, um selbst unter den anspruchsvollsten industriellen Bedingungen zu halten — und sie sind von Anfang an mit Blick auf die Recyclingfähigkeit konzipiert.
-
-Ist Ihr Unternehmen bereit für die neuen Anforderungen? Wir beraten Sie gerne.
-
-#bigbags #kreislaufwirtschaft #grünerWandel #NordicBigBag #EUVerpackung`,
-    `Ein neuer Bericht bestätigt, was wir bei NBB seit Jahren sagen: Bigbags sind die ressourceneffizienteste Lösung für den Transport und die Lagerung von Schüttgütern.
-
-Geringerer CO₂-Fußabdruck. Hohe Auslastungsquote. Recyclingfähigkeit. Das ist kein Zufall — es ist das Ergebnis durchdachten Designs und bewusster Materialwahl.
-
-Bei NBB bilden Qualität und Langlebigkeit das Fundament unserer Arbeit. Unsere Bigbags sind gebaut, um selbst unter den anspruchsvollsten industriellen Bedingungen zu halten.
-
-Möchten Sie mehr erfahren? Wir beraten Sie gerne.
-
-#bigbags #kreislaufwirtschaft #grünerWandel #NordicBigBag #nachhaltigeIndustrie`,
-    `Industrieller Plastikmüll sinkt zum dritten Jahr in Folge. Das sind gute Neuigkeiten — und ein Zeichen dafür, dass die Kreislaufwirtschaft nicht nur ein Schlagwort ist.
-
-Bei NBB spüren wir das direkt. Immer mehr Unternehmen fragen nicht nur nach Preis und Lieferung, sondern nach Materialien, Recyclingfähigkeit und Verantwortung.
-
-Genau dieses Gespräch wollen wir führen. Sind Sie bereit dafür?
-
-#bigbags #kreislaufwirtschaft #grünerWandel #NordicBigBag #Plastikmüll`,
-    `Die dänische Industrie steigert die Nachfrage nach nachhaltigen Verpackungen im Jahr 2025 um 34 %. Ein Wachstum, das wir bei NBB direkt spüren.
-
-Bei NBB waren Qualität und Langlebigkeit schon immer das Fundament. Unsere Bigbags sind für die grüne Transformation Ihres Unternehmens bereit.
-
-Was können wir für Sie tun?
-
-#bigbags #kreislaufwirtschaft #grünerWandel #NordicBigBag #nachhaltigeIndustrie`
-  ],
-  sv: [
-    `EU:s nya förpackningsförordning sätter en ny standard för hela industrin — och på NBB har vi förberett oss för detta i flera år.
-
-Från 2026 måste alla företag dokumentera att deras förpackningar uppfyller strikta krav på återvinningsbarhet. Det är inte bara ett lagkrav. Det är en väckarklocka för alla som ännu inte funderat på vad deras förpackning faktiskt är gjord av — och var den hamnar.
-
-På NBB har kvalitet och hållbarhet alltid varit grunden för allt vi gör. Våra bigbags är byggda för att hålla, även under de mest krävande industriella förhållandena — och de är designade med återvinningsbarhet i åtanke från dag ett.
-
-Är ditt företag redo för de nya kraven? Vi ger gärna råd.
-
-#bigbags #cirkulärekonomi #grönomställning #NordicBigBag #EUförpackning`,
-    `En ny rapport bekräftar vad vi på NBB har sagt i flera år: bigbags är den mest resurseffektiva lösningen för transport och lagring av bulkvaror.
-
-Lägre koldioxidavtryck. Hög nyttjandegrad. Återvinningsbarhet. Det är inte en slump — det är resultatet av genomtänkt design och materialval.
-
-På NBB är kvalitet och hållbarhet grunden för vårt arbete. Vill du veta mer?
-
-#bigbags #cirkulärekonomi #grönomställning #NordicBigBag #hållbarindustri`,
-    `Industriellt plastspill minskar för tredje året i rad. Det är goda nyheter — och ett tecken på att den cirkulära ekonomin faktiskt fungerar.
-
-På NBB märker vi det direkt. Fler och fler företag frågar inte bara om pris och leverans. De frågar om material, återvinningsbarhet och ansvar.
-
-Det är precis det samtal vi vill ha. Är du redo?
-
-#bigbags #cirkulärekonomi #grönomställning #NordicBigBag #plastspill`,
-    `Dansk industri ökar efterfrågan på hållbar förpackning med 34 procent under 2025. En tillväxt som vi på NBB känner av direkt.
-
-På NBB har kvalitet och hållbarhet alltid varit grunden för allt vi gör. Våra bigbags är redo för den gröna omställning ditt företag är på väg in i.
-
-Vad kan vi göra för dig?
-
-#bigbags #cirkulärekonomi #grönomställning #NordicBigBag #hållbarindustri`
-  ]
-};
-
-var GRAPHIC_DATA = {
-  da: { cat: 'CIRKULÆR ØKONOMI', tags: '#bigbags  #cirkulærøkonomi  #grønomstilling  #NordicBigBag' },
-  en: { cat: 'CIRCULAR ECONOMY', tags: '#bigbags  #circulareconomy  #greentransition  #NordicBigBag' },
-  de: { cat: 'KREISLAUFWIRTSCHAFT', tags: '#bigbags  #kreislaufwirtschaft  #grünerWandel  #NordicBigBag' },
-  sv: { cat: 'CIRKULÄR EKONOMI', tags: '#bigbags  #cirkulärekonomi  #grönomställning  #NordicBigBag' }
-};
-
-var LANG_META = {
-  da: { flag: '🇩🇰', label: 'Dansk' },
-  en: { flag: '🇬🇧', label: 'English' },
-  de: { flag: '🇩🇪', label: 'Deutsch' },
-  sv: { flag: '🇸🇪', label: 'Svenska' }
-};
-
-var selectedArticleIdx = null;
-
-/* ─── Language toggle ─────────────────────────────────────────────── */
-function setLang(lang) {
-  currentLang = lang;
-  ['da','en','de','sv'].forEach(function(l) {
-    var btn = document.getElementById('btn-' + l);
-    if (btn) btn.className = 'lang-btn' + (l === lang ? ' active' : '');
+/* ─── Build USP cards ─────────────────────────────────────────────── */
+function buildUspCards() {
+  var container = document.getElementById('usp-cards');
+  container.innerHTML = '';
+  USPS.forEach(function(usp, idx) {
+    var div = document.createElement('div');
+    div.className = 'usp-option' + (idx === selectedUspIdx ? ' selected' : '');
+    div.onclick = function() { selectUsp(idx); };
+    div.innerHTML =
+      '<div class="usp-radio">' + (idx === selectedUspIdx ? '✓' : '') + '</div>' +
+      '<div class="usp-text">' + usp + '</div>';
+    container.appendChild(div);
   });
-  document.getElementById('usp-text').textContent = USP[lang];
+}
+
+function selectUsp(idx) {
+  selectedUspIdx = idx;
+  buildUspCards();
+  var step2 = document.getElementById('step2');
+  step2.classList.add('active');
+  setTimeout(function() { step2.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 150);
 }
 
 /* ─── Selection ───────────────────────────────────────────────────── */
 function selectArticle(idx) {
-  selectedArticleIdx = idx;
-  showLoading(function() { showPreview(idx, false); });
+  showLoading(function() { showPreview(idx); });
 }
 
 function selectManual() {
   var text = document.getElementById('manual-text').value.trim();
   if (!text) { document.getElementById('manual-text').focus(); return; }
-  selectedArticleIdx = null;
   showLoading(function() { showPreviewManual(text); });
 }
 
@@ -503,68 +387,42 @@ function showLoading(callback) {
 }
 
 /* ─── Preview ─────────────────────────────────────────────────────── */
-function showPreview(idx, isManual) {
-  var lang = currentLang;
-  var meta = LANG_META[lang];
+function showPreview(idx) {
   var article = ARTICLES[idx];
-  var post = POSTS[lang][idx];
-  var gfx = GRAPHIC_DATA[lang];
-
   document.getElementById('ref-label').textContent = 'Nyhed brugt som krog';
   document.getElementById('ref-title').textContent = article.title;
   document.getElementById('ref-meta').textContent = article.source + ' · ' + article.date;
-  document.getElementById('post-body').textContent = post;
-  document.getElementById('preview-usp').textContent = USP[lang];
-  document.getElementById('preview-lang-badge').textContent = meta.flag + ' ' + meta.label;
-  document.getElementById('preview-lang-pill').textContent = meta.flag + ' ' + meta.label;
-  document.getElementById('graphic-cat').textContent = gfx.cat;
+  document.getElementById('post-body').value = POSTS[idx];
+  document.getElementById('preview-usp').textContent = USPS[selectedUspIdx];
   document.getElementById('graphic-headline').textContent = article.title.split('—')[0].trim().substring(0, 70);
   document.getElementById('graphic-src').textContent = article.source + '  ·  ' + article.date;
-  document.getElementById('graphic-tags').textContent = gfx.tags;
-
   switchScreen('screen-preview');
 }
 
 function showPreviewManual(text) {
-  var lang = currentLang;
-  var meta = LANG_META[lang];
-  var gfx = GRAPHIC_DATA[lang];
-
-  var manualPosts = {
-    da: 'Hos NBB følger vi tæt med i de udviklinger, der former fremtidens industri.\n\n' + text + '\n\nDet er netop den type begivenheder og udviklinger, der bekræfter, hvorfor vi arbejder med det, vi gør: at gøre industriel emballage til en del af løsningen.\n\nVores bigbags er bygget til at holde, selv under de mest krævende industrielle forhold — og vi er klar til at rådgive om den løsning, der passer til din produktion.\n\nHar du et spørgsmål? Skriv til os.\n\n#bigbags #cirkulærøkonomi #grønomstilling #NordicBigBag',
-    en: 'At NBB, we follow closely the developments shaping the future of industry.\n\n' + text + '\n\nThis is exactly the kind of event that confirms why we do what we do: making industrial packaging part of the solution.\n\nOur bigbags are built to last, even in the most demanding industrial environments — and we are ready to advise on the right solution for your production.\n\nHave a question? Reach out.\n\n#bigbags #circulareconomy #greentransition #NordicBigBag',
-    de: 'Bei NBB verfolgen wir aufmerksam die Entwicklungen, die die Zukunft der Industrie prägen.\n\n' + text + '\n\nGenau solche Ereignisse bestätigen, warum wir tun, was wir tun: industrielle Verpackungen zu einem Teil der Lösung zu machen.\n\nUnsere Bigbags sind gebaut, um selbst unter den anspruchsvollsten Bedingungen zu halten.\n\n#bigbags #kreislaufwirtschaft #grünerWandel #NordicBigBag',
-    sv: 'På NBB följer vi noga de utvecklingar som formar framtidens industri.\n\n' + text + '\n\nDet är just sådana händelser som bekräftar varför vi gör det vi gör: att göra industriell förpackning till en del av lösningen.\n\nVåra bigbags är byggda för att hålla, även under de mest krävande industriella förhållandena.\n\n#bigbags #cirkulärekonomi #grönomställning #NordicBigBag'
-  };
+  var post = 'Hos NBB følger vi tæt med i de udviklinger, der former fremtidens industri.\n\n' +
+    text + '\n\nDet er netop den type begivenheder og udviklinger, der bekræfter, hvorfor vi arbejder med det, vi gør: at gøre industriel emballage til en del af løsningen.\n\n' +
+    USPS[selectedUspIdx] + '\n\nHar du et spørgsmål? Skriv til os.\n\n#bigbags #cirkulærøkonomi #grønomstilling #NordicBigBag';
 
   document.getElementById('ref-label').textContent = 'Udgangspunkt';
   document.getElementById('ref-title').textContent = text;
   document.getElementById('ref-meta').textContent = 'Manuelt angivet emne';
-  document.getElementById('post-body').textContent = manualPosts[lang];
-  document.getElementById('preview-usp').textContent = USP[lang];
-  document.getElementById('preview-lang-badge').textContent = meta.flag + ' ' + meta.label;
-  document.getElementById('preview-lang-pill').textContent = meta.flag + ' ' + meta.label;
-  document.getElementById('graphic-cat').textContent = gfx.cat;
+  document.getElementById('post-body').value = post;
+  document.getElementById('preview-usp').textContent = USPS[selectedUspIdx];
   document.getElementById('graphic-headline').textContent = text.substring(0, 70);
   document.getElementById('graphic-src').textContent = 'Manuel input';
-  document.getElementById('graphic-tags').textContent = gfx.tags;
-
   switchScreen('screen-preview');
 }
 
 /* ─── Actions ─────────────────────────────────────────────────────── */
 function approve() { switchScreen('screen-success'); }
 
-function goBack() {
-  switchScreen('screen-selection');
-  // Restore lang buttons
-  setLang(currentLang);
-}
+function goBack() { switchScreen('screen-selection'); }
 
 function restart() {
   document.getElementById('manual-text').value = '';
-  selectedArticleIdx = null;
-  setLang('da');
+  selectedUspIdx = 0;
+  buildUspCards();
   switchScreen('screen-selection');
 }
 
@@ -576,6 +434,9 @@ function switchScreen(id) {
   document.getElementById(id).classList.add('active');
   window.scrollTo(0, 0);
 }
+
+/* ─── Init ────────────────────────────────────────────────────────── */
+buildUspCards();
 </script>
 
 </body>
