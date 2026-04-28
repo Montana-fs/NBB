@@ -5,7 +5,7 @@ from datetime import datetime
 
 from dotenv import load_dotenv
 
-from backend.config import APPROVAL_PORT, PENDING_FILE
+from backend.config import APPROVAL_PORT, DEFAULT_LANGUAGE, PENDING_FILE, USPS
 from backend.news_collector import collect_news, article_from_topic, article_from_url
 from backend.post_writer import write_post
 from backend.state_manager import (
@@ -59,7 +59,8 @@ def run():
         action = approval_server.next_action()
 
         if action["type"] == "selected":
-            post_language = action.get("language", language)
+            selected_usp_idx = action.get("usp_index", usp_index)
+            selected_usp = USPS[selected_usp_idx % len(USPS)]
 
             if "article" in action:
                 article = action["article"]
@@ -76,22 +77,21 @@ def run():
                 else:
                     article = article_from_topic(text)
 
-            lang_label = {"da": "Dansk", "en": "English", "de": "Deutsch", "sv": "Svenska"}.get(post_language, post_language)
-            print(f"🌐 Sprog: {lang_label}")
+            print(f"📢 Budskab: {selected_usp['da'][:60]}…")
             print("✍️  Claude skriver opslag…")
-            post_text = write_post(article, usp, post_language)
+            post_text = write_post(article, selected_usp, DEFAULT_LANGUAGE)
             print("✓ Opslag skrevet")
 
             image_path = "state/pending_image.png"
-            generate_image(article, post_language, usp_index, image_path)
+            generate_image(article, DEFAULT_LANGUAGE, selected_usp_idx, image_path)
             print("✓ Grafik genereret\n")
 
             pending_data = {
                 "article": article,
                 "post_text": post_text,
-                "language": post_language,
-                "usp": usp,
-                "usp_index": usp_index,
+                "language": DEFAULT_LANGUAGE,
+                "usp": selected_usp,
+                "usp_index": selected_usp_idx,
                 "image_path": image_path,
                 "generated_at": datetime.now().isoformat(),
             }

@@ -45,7 +45,8 @@ USPS = [
     },
 ]
 
-LANGUAGES = ["da", "en", "de", "sv"]
+DEFAULT_LANGUAGE = "da"
+LANGUAGES = ["da"]
 
 RSS_FEEDS = [
     # Danske medier

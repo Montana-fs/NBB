@@ -3,6 +3,7 @@ import queue
 import threading
 import webbrowser
 from flask import Flask, request, redirect, jsonify, send_file
+from backend.config import USPS, DEFAULT_LANGUAGE
 
 app = Flask(__name__)
 
@@ -11,7 +12,7 @@ _state = {
     "candidates": [],
     "usp": {},
     "usp_index": 0,
-    "language": "da",
+    "language": DEFAULT_LANGUAGE,
     "pending_data": None,
     "post_ready": False,
 }
@@ -76,10 +77,7 @@ def _fmt_date(published):
 
 @app.route("/")
 def selection_page():
-    language = _state["language"]
-    lang_flag = "🇩🇰" if language == "da" else "🇬🇧"
-    lang_label = "Dansk" if language == "da" else "English"
-    usp_text = _state["usp"].get(language, "")
+    usp_index = _state["usp_index"]
     candidates = _state["candidates"]
 
     cards = ""
@@ -97,18 +95,28 @@ def selection_page():
           <div class="news-title">{title}</div>
           <div class="news-card-bottom">
             <span class="news-score">{stars}</span>
-            <a href="/select/article/{i}" class="btn-news">Brug denne →</a>
+            <a href="/select/article/{i}?usp_idx={usp_index}" class="btn-news" data-article-idx="{i}">Brug denne →</a>
           </div>
         </div>"""
 
     no_news = "" if candidates else '<p class="no-news">Ingen nyheder fundet i dag — brug eget emne ovenfor.</p>'
+
+    usp_cards = ""
+    for idx, u in enumerate(USPS):
+        selected_class = " selected" if idx == usp_index else ""
+        checkmark = "✓" if idx == usp_index else ""
+        usp_cards += f"""
+        <div class="usp-option{selected_class}" onclick="selectUsp({idx})">
+          <div class="usp-radio">{checkmark}</div>
+          <div class="usp-text">{u['da']}</div>
+        </div>"""
 
     return f"""<!DOCTYPE html>
 <html lang="da">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NBB — Vælg nyhed til ugens opslag</title>
+<title>NBB — Ugens LinkedIn-opslag</title>
 <style>
   * {{ box-sizing: border-box; margin: 0; padding: 0; }}
   body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f3f2ef; min-height: 100vh; padding: 32px 16px; }}
@@ -116,7 +124,6 @@ def selection_page():
   .header {{ text-align: center; margin-bottom: 32px; }}
   .header h1 {{ font-size: 22px; color: #1a1a1a; font-weight: 700; }}
   .header p {{ color: #666; margin-top: 6px; font-size: 14px; }}
-  .badge {{ display: inline-flex; align-items: center; gap: 6px; background: #e8f0fe; color: #1a56db; border-radius: 20px; padding: 4px 12px; font-size: 13px; font-weight: 500; margin-top: 10px; }}
   .card {{ background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow: hidden; margin-bottom: 20px; }}
   .card-header {{ padding: 16px 20px; border-bottom: 1px solid #f0f0f0; font-weight: 600; color: #1a1a1a; font-size: 15px; }}
   .card-body {{ padding: 20px; }}
@@ -139,24 +146,29 @@ def selection_page():
   .news-score {{ font-size: 13px; color: #f59e0b; letter-spacing: 1px; }}
   .btn-news {{ padding: 8px 16px; background: #f3f2ef; color: #1a1a1a; border-radius: 6px; font-size: 13px; font-weight: 600; text-decoration: none; transition: all 0.15s; border: 1px solid #e0e0e0; white-space: nowrap; }}
   .btn-news:hover {{ background: #0a66c2; color: white; border-color: #0a66c2; }}
-  .usp-note {{ padding: 12px 16px; background: #f0fdf4; border-radius: 8px; border-left: 3px solid #16a34a; font-size: 13px; color: #166534; margin-top: 8px; }}
-  .usp-note .label {{ font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #888; margin-bottom: 4px; }}
   .no-news {{ color: #999; font-size: 14px; text-align: center; padding: 24px 0; }}
-  .lang-toggle {{ display: flex; gap: 8px; justify-content: center; margin-top: 14px; }}
-  .lang-btn {{ padding: 8px 20px; border-radius: 20px; font-size: 14px; font-weight: 600; cursor: pointer; border: 2px solid #d0d0d0; background: white; color: #666; transition: all 0.15s; }}
-  .lang-btn.active {{ background: #1a1a1a; color: white; border-color: #1a1a1a; }}
+  .usp-option {{ display: flex; align-items: flex-start; gap: 12px; padding: 12px 16px; border-radius: 8px; cursor: pointer; border: 2px solid transparent; margin-bottom: 8px; transition: all 0.15s; background: #f8f9fa; }}
+  .usp-option:hover {{ background: #eef2ff; border-color: #c7d7fd; }}
+  .usp-option.selected {{ background: #f0fdf4; border-color: #16a34a; }}
+  .usp-radio {{ width: 20px; height: 20px; border-radius: 50%; border: 2px solid #d0d0d0; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #16a34a; font-weight: 700; flex-shrink: 0; margin-top: 2px; }}
+  .usp-option.selected .usp-radio {{ border-color: #16a34a; background: #dcfce7; }}
+  .usp-text {{ font-size: 14px; color: #1a1a1a; line-height: 1.5; }}
 </style>
 <script>
-  var currentLang = '{language}';
-  function setLang(lang) {{
-    currentLang = lang;
-    ['da','en','de','sv'].forEach(function(l) {{
-      document.getElementById('btn-' + l).className = 'lang-btn' + (lang === l ? ' active' : '');
+  var selectedUsp = {usp_index};
+  function selectUsp(idx) {{
+    selectedUsp = idx;
+    document.querySelectorAll('.usp-option').forEach(function(el, i) {{
+      el.className = 'usp-option' + (i === idx ? ' selected' : '');
+      el.querySelector('.usp-radio').textContent = (i === idx ? '✓' : '');
+    }});
+    document.querySelectorAll('.usp-hidden').forEach(function(el) {{
+      el.value = idx;
     }});
     document.querySelectorAll('.btn-news').forEach(function(a) {{
-      a.href = a.href.split('?')[0] + '?lang=' + lang;
+      var articleIdx = a.getAttribute('data-article-idx');
+      a.href = '/select/article/' + articleIdx + '?usp_idx=' + idx;
     }});
-    document.getElementById('lang-field').value = lang;
   }}
 </script>
 </head>
@@ -164,12 +176,13 @@ def selection_page():
 <div class="container">
   <div class="header">
     <h1>NBB — Ugens LinkedIn-opslag</h1>
-    <p>Vælg en nyhed, eller skriv dit eget emne nedenfor</p>
-    <div class="lang-toggle">
-      <button id="btn-da" class="lang-btn{' active' if language == 'da' else ''}" onclick="setLang('da')">🇩🇰 Dansk</button>
-      <button id="btn-en" class="lang-btn{' active' if language == 'en' else ''}" onclick="setLang('en')">🇬🇧 English</button>
-      <button id="btn-de" class="lang-btn{' active' if language == 'de' else ''}" onclick="setLang('de')">🇩🇪 Deutsch</button>
-      <button id="btn-sv" class="lang-btn{' active' if language == 'sv' else ''}" onclick="setLang('sv')">🇸🇪 Svenska</button>
+    <p>Vælg det budskab du vil fremhæve, og find en nyhed</p>
+  </div>
+
+  <div class="card">
+    <div class="card-header">📢 &nbsp;Vælg ugens budskab</div>
+    <div class="card-body">
+      {usp_cards}
     </div>
   </div>
 
@@ -177,9 +190,9 @@ def selection_page():
     <div class="card-header">✏️ &nbsp;Eget emne eller begivenhed</div>
     <div class="card-body">
       <form action="/select/manual" method="POST">
-        <input type="hidden" name="lang" id="lang-field" value="{language}">
+        <input type="hidden" name="usp_idx" class="usp-hidden" value="{usp_index}">
         <textarea class="manual-input" name="input" placeholder="Fx: 'NBB deltager på Packtech-messen den 15. maj' — eller indsæt et link til en specifik nyhed"></textarea>
-        <div class="manual-hint">Systemet skriver opslaget ud fra dit emne med denne uges budskab som omdrejningspunkt.</div>
+        <div class="manual-hint">Systemet skriver opslaget ud fra dit emne med det valgte budskab som omdrejningspunkt.</div>
         <button type="submit" class="btn-manual">Generer opslag →</button>
       </form>
     </div>
@@ -190,11 +203,6 @@ def selection_page():
   <div class="section-label">Fundne nyheder ({len(candidates)})</div>
   {cards}
   {no_news}
-
-  <div class="usp-note">
-    <div class="label">Denne uges budskab</div>
-    {usp_text}
-  </div>
 </div>
 </body>
 </html>"""
@@ -205,10 +213,8 @@ def select_article(idx):
     candidates = _state["candidates"]
     if idx < 0 or idx >= len(candidates):
         return redirect("/")
-    lang = request.args.get("lang", _state["language"])
-    if lang not in ("da", "en", "de", "sv"):
-        lang = _state["language"]
-    _q.put({"type": "selected", "article": candidates[idx], "language": lang})
+    usp_idx = int(request.args.get("usp_idx", str(_state["usp_index"]))) % len(USPS)
+    _q.put({"type": "selected", "article": candidates[idx], "language": DEFAULT_LANGUAGE, "usp_index": usp_idx})
     return redirect("/loading")
 
 
@@ -217,10 +223,8 @@ def select_manual():
     text = (request.form.get("input") or "").strip()
     if not text:
         return redirect("/")
-    lang = request.form.get("lang", _state["language"])
-    if lang not in ("da", "en", "de", "sv"):
-        lang = _state["language"]
-    _q.put({"type": "selected", "manual_text": text, "language": lang})
+    usp_idx = int(request.form.get("usp_idx", str(_state["usp_index"]))) % len(USPS)
+    _q.put({"type": "selected", "manual_text": text, "language": DEFAULT_LANGUAGE, "usp_index": usp_idx})
     return redirect("/loading")
 
 
@@ -283,13 +287,8 @@ def preview():
     pending = _state["pending_data"]
     post = pending.get("post_text", "")
     article = pending.get("article", {})
-    language = pending.get("language", "da")
     usp = pending.get("usp", {})
-
-    lang_flag = "🇩🇰" if language == "da" else "🇬🇧"
-    lang_label = "Dansk" if language == "da" else "English"
-    usp_text = usp.get(language, "")
-    post_html = post.replace("\n", "<br>")
+    usp_text = usp.get(DEFAULT_LANGUAGE, "")
 
     if article.get("manual"):
         source_html = f"""
@@ -319,34 +318,34 @@ def preview():
   .header {{ text-align: center; margin-bottom: 32px; }}
   .header h1 {{ font-size: 22px; color: #1a1a1a; font-weight: 700; }}
   .header p {{ color: #666; margin-top: 6px; font-size: 14px; }}
-  .badge {{ display: inline-flex; align-items: center; gap: 6px; background: #e8f0fe; color: #1a56db; border-radius: 20px; padding: 4px 12px; font-size: 13px; font-weight: 500; margin-top: 10px; }}
   .card {{ background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow: hidden; margin-bottom: 20px; }}
   .card-header {{ padding: 16px 20px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; gap: 12px; }}
   .avatar {{ width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #0a66c2, #004182); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 18px; flex-shrink: 0; }}
   .profile-name {{ font-weight: 600; color: #1a1a1a; font-size: 15px; }}
   .profile-sub {{ color: #666; font-size: 13px; margin-top: 2px; }}
-  .post-body {{ padding: 20px; font-size: 15px; line-height: 1.6; color: #1a1a1a; }}
-  .news-source {{ margin: 0 20px 20px; padding: 12px 16px; background: #f8f9fa; border-radius: 8px; border-left: 3px solid #0a66c2; }}
+  .news-source {{ margin: 16px 20px 0; padding: 12px 16px; background: #f8f9fa; border-radius: 8px; border-left: 3px solid #0a66c2; }}
   .news-source .label {{ font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #888; margin-bottom: 4px; }}
   .news-source .title {{ font-size: 14px; font-weight: 600; color: #1a1a1a; }}
   .news-source .meta {{ font-size: 12px; color: #888; margin-top: 4px; }}
-  .usp-badge {{ margin: 0 20px 20px; padding: 10px 14px; background: #f0fdf4; border-radius: 8px; border-left: 3px solid #16a34a; font-size: 13px; color: #166534; }}
+  .post-body {{ width: 100%; padding: 20px; font-size: 15px; line-height: 1.6; color: #1a1a1a; border: none; border-top: 1px solid #f0f0f0; resize: vertical; min-height: 240px; font-family: inherit; outline: none; background: white; display: block; margin-top: 16px; }}
+  .post-body:focus {{ background: #fafeff; }}
+  .edit-hint {{ padding: 6px 20px 14px; font-size: 12px; color: #bbb; }}
+  .post-image {{ margin: 0 20px 16px; }}
+  .post-image img {{ width: 100%; border-radius: 8px; display: block; }}
+  .usp-badge {{ margin: 0 20px 16px; padding: 10px 14px; background: #f0fdf4; border-radius: 8px; border-left: 3px solid #16a34a; font-size: 13px; color: #166534; }}
   .usp-badge .label {{ font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #888; margin-bottom: 4px; }}
   .actions {{ display: flex; gap: 12px; padding: 20px; border-top: 1px solid #f0f0f0; align-items: center; }}
-  .btn-approve {{ flex: 1; padding: 14px; background: #0a66c2; color: white; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; border: none; text-decoration: none; display: block; text-align: center; transition: background 0.15s; }}
+  .btn-approve {{ flex: 1; padding: 14px; background: #0a66c2; color: white; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; border: none; text-align: center; transition: background 0.15s; }}
   .btn-approve:hover {{ background: #004182; }}
   .btn-back {{ padding: 14px 20px; color: #666; font-size: 14px; text-decoration: none; border-radius: 8px; transition: background 0.15s; white-space: nowrap; }}
   .btn-back:hover {{ background: #ebebeb; color: #1a1a1a; }}
-  .info-row {{ display: flex; gap: 8px; padding: 12px 20px; border-top: 1px solid #f0f0f0; font-size: 12px; color: #888; flex-wrap: wrap; }}
-  .info-pill {{ background: #f3f2ef; padding: 3px 10px; border-radius: 20px; }}
 </style>
 </head>
 <body>
 <div class="container">
   <div class="header">
     <h1>NBB — Godkend opslaget</h1>
-    <p>Gennemse udkastet og godkend, eller gå tilbage og vælg en anden</p>
-    <div class="badge">{lang_flag} {lang_label}</div>
+    <p>Ret eventuelt i teksten, og godkend når det er klar</p>
   </div>
 
   <div class="card">
@@ -360,34 +359,36 @@ def preview():
 
     {source_html}
 
-    <div class="post-body">{post_html}</div>
+    <form method="POST" action="/approve">
+      <textarea class="post-body" name="text">{post}</textarea>
+      <div class="edit-hint">Du kan redigere teksten direkte ovenfor.</div>
 
-    <div style="margin: 0 20px 20px;">
-      <img src="/image" alt="LinkedIn grafik" style="width:100%; border-radius:8px; display:block;">
-    </div>
+      <div class="post-image">
+        <img src="/image" alt="LinkedIn grafik">
+      </div>
 
-    <div class="usp-badge">
-      <div class="label">Denne uges budskab</div>
-      {usp_text}
-    </div>
+      <div class="usp-badge">
+        <div class="label">Ugens budskab</div>
+        {usp_text}
+      </div>
 
-    <div class="info-row">
-      <span class="info-pill">LinkedIn · NBB virksomhedsside</span>
-      <span class="info-pill">{lang_flag} {lang_label}</span>
-    </div>
-
-    <div class="actions">
-      <a href="/approve" class="btn-approve">✓ &nbsp;Godkend og publicer</a>
-      <a href="/back" class="btn-back">← Vælg en anden</a>
-    </div>
+      <div class="actions">
+        <button type="submit" class="btn-approve">✓ &nbsp;Godkend og publicer</button>
+        <a href="/back" class="btn-back">← Vælg en anden</a>
+      </div>
+    </form>
   </div>
 </div>
 </body>
 </html>"""
 
 
-@app.route("/approve")
+@app.route("/approve", methods=["POST"])
 def approve():
+    if request.method == "POST":
+        edited_text = (request.form.get("text") or "").strip()
+        if edited_text and _state["pending_data"]:
+            _state["pending_data"]["post_text"] = edited_text
     _q.put({"type": "approved"})
     return """<!DOCTYPE html>
 <html><head><meta charset="UTF-8">
