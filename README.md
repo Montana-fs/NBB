@@ -22,7 +22,7 @@ Lokalt CRM-system bygget i Flask + SQLite. Kører i browseren på din Mac, ingen
 ### LinkedIn/
 Automatisering af LinkedIn-opslag for NBB. Finder relevante nyheder, skriver opslag med Claude AI, genererer brandede grafik og poster til LinkedIn.
 
-**Sprog:** Dansk, Engelsk, Tysk, Svensk
+**Sprog:** Dansk
 
 **Start:** Se `LinkedIn/docs/INSTALL.md`
 

@@ -4,11 +4,13 @@ Automatiserer LinkedIn-opslag for NBB (Nordic Big Bag). Finder relevante nyheder
 
 ## Hvad det gør
 
-1. Henter 5 aktuelle nyheder fra relevante RSS-feeds (eller modtager manuelt emne/URL)
-2. Viser nyhederne til godkendelse i en browser-UI
-3. Skriver et LinkedIn-opslag på valgt sprog (🇩🇰 🇬🇧 🇩🇪 🇸🇪)
+1. Henter aktuelle nyheder fra relevante RSS-feeds (eller modtager manuelt emne/URL)
+2. Åbner browser-UI med to trin:
+   - **Trin 1:** Vælg ugens budskab (7 valgmuligheder)
+   - **Trin 2:** Vælg en nyhed — eller skriv eget emne
+3. Skriver et LinkedIn-opslag på dansk med Claude AI
 4. Genererer et branded NBB-grafik
-5. Viser opslaget til endelig godkendelse
+5. Viser opslaget til godkendelse — teksten kan redigeres inden publicering
 6. Poster til LinkedIn
 
 ## Krav
