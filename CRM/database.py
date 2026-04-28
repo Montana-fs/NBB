@@ -1,8 +1,16 @@
 import sqlite3
 import os
+import sys
 from datetime import datetime, date
 
-DB_PATH = 'data/crm.db'
+
+def _base():
+    if getattr(sys, 'frozen', False):
+        return os.path.dirname(sys.executable)
+    return os.path.dirname(os.path.abspath(__file__))
+
+
+DB_PATH = os.path.join(_base(), 'data', 'crm.db')
 
 
 def get_db():

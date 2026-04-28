@@ -1,11 +1,17 @@
 import os
+import sys
 import threading
 import webbrowser
 from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, send_file
 import database
 
-app = Flask(__name__)
+if getattr(sys, 'frozen', False):
+    _templates = os.path.join(sys._MEIPASS, 'templates')
+else:
+    _templates = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
+
+app = Flask(__name__, template_folder=_templates)
 app.secret_key = 'nbb-crm-2026'
 
 MAANEDER = ['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec']
