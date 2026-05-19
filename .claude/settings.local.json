@@ -5,7 +5,8 @@
       "Bash(pip3 install *)",
       "Bash(python3 *)",
       "Bash(open *)",
-      "WebFetch(domain:nordicbigbag.com)"
+      "WebFetch(domain:nordicbigbag.com)",
+      "Bash(git *)"
     ]
   }
 }
